@@ -2,8 +2,10 @@ package com.melvstein.solar_system.controller;
 
 import com.melvstein.solar_system.constant.ApiConstants;
 import com.melvstein.solar_system.dto.ApiResponse;
+import com.melvstein.solar_system.dto.PlanetDto;
 import com.melvstein.solar_system.model.Planet;
 import com.melvstein.solar_system.repository.PlanetRepository;
+import com.melvstein.solar_system.service.PlanetService;
 import com.melvstein.solar_system.util.ApiResponseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,14 +18,17 @@ import java.util.*;
 @RequestMapping("/api/planets")
 public class PlanetController {
 
-    @Autowired
-    private PlanetRepository planetRepository;
+    private final PlanetService planetService;
+
+    public PlanetController(PlanetService planetService) {
+        this.planetService = planetService;
+    }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Planet>>> getPlanets() {
+    public ResponseEntity<ApiResponse<List<PlanetDto>>> getPlanets() {
         try {
-             List<Planet> planets = new ArrayList<>(planetRepository.findAll());
-             ApiResponse<List<Planet>> response = ApiResponseUtils.success(planets);
+             List<PlanetDto> planets = new ArrayList<>(planetService.getAll());
+             ApiResponse<List<PlanetDto>> response = ApiResponseUtils.success(planets);
 
              return ResponseEntity.ok(response);
          } catch (Exception e) {
@@ -34,9 +39,9 @@ public class PlanetController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Planet>> getPlanetById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<PlanetDto>> getPlanetById(@PathVariable Long id) {
         try {
-            Optional<Planet> planet = planetRepository.findById(id);
+            Optional<PlanetDto> planet = planetService.getById(id);
 
             return planet
                     .map(p -> ResponseEntity.ok(ApiResponseUtils.success(p)))
@@ -52,17 +57,17 @@ public class PlanetController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Planet>> addPlanet(@RequestBody Planet planet) {
+    public ResponseEntity<ApiResponse<PlanetDto>> addPlanet(@RequestBody Planet planet) {
         try {
-            Planet existingPlanet = planetRepository.findByName(planet.getName());
+            PlanetDto existingPlanet = planetService.getByName(planet.getName());
 
             if (existingPlanet != null) {
                 return ResponseEntity
-                        .status(HttpStatus.CONFLICT)
-                        .body(ApiResponseUtils.error(ApiConstants.RESPONSE_ERROR.get("code"), "Planet already exists", null));
+                        .status(HttpStatus.OK)
+                        .body(ApiResponseUtils.success(ApiConstants.RESPONSE_SUCCESS.get("code"), "Already Exists", existingPlanet));
             }
 
-            Planet newPlanet = planetRepository.save(planet);
+            PlanetDto newPlanet = planetService.save(planet);
 
             return ResponseEntity.ok(ApiResponseUtils.success(newPlanet));
         } catch (Exception e) {
@@ -73,17 +78,12 @@ public class PlanetController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<ApiResponse<Planet>> updatePlanetById(@PathVariable Long id, @RequestBody Planet planet) {
+    public ResponseEntity<ApiResponse<PlanetDto>> updatePlanetById(@PathVariable Long id, @RequestBody Planet planet) {
         try {
-            Optional<Planet> planetOptional = planetRepository.findById(id);
+            Optional<Planet> planetOptional = planetService.getEntityById(id);
 
             if (planetOptional.isPresent()) {
                 Planet updatedPlanet = planetOptional.get();
-
-                if (planet.getName() != null) {
-                    updatedPlanet.setName(planet.getName());
-                }
-
                 if (planet.getRadius() != null) {
                     updatedPlanet.setRadius(planet.getRadius());
                 }
@@ -96,7 +96,7 @@ public class PlanetController {
                     updatedPlanet.setSpeed(planet.getSpeed());
                 }
 
-                return ResponseEntity.ok(ApiResponseUtils.success(planetRepository.save(updatedPlanet)));
+                return ResponseEntity.ok(ApiResponseUtils.success(planetService.save(updatedPlanet)));
             } else {
                 return ResponseEntity
                         .status(HttpStatus.NOT_FOUND)
@@ -113,7 +113,7 @@ public class PlanetController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deletePlanetById(@PathVariable Long id) {
         try {
-            boolean exists = planetRepository.existsById(id);
+            boolean exists = planetService.existsById(id);
 
             if (!exists) {
                 return ResponseEntity
@@ -121,7 +121,7 @@ public class PlanetController {
                         .body(ApiResponseUtils.error(ApiConstants.RESPONSE_ERROR.get("code"), "Planet not found", null));
             }
 
-            planetRepository.deleteById(id);
+            planetService.deleteById(id);
 
             return ResponseEntity.ok(ApiResponseUtils.success(ApiConstants.RESPONSE_SUCCESS.get("code"), "Deleted Successfully", null));
         } catch (Exception e) {
