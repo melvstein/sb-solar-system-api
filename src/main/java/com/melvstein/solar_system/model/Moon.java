@@ -1,5 +1,6 @@
 package com.melvstein.solar_system.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -40,6 +41,7 @@ public class Moon {
     @Column(nullable = false)
     private Double speed;
 
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "planet_id")
     private Planet planet;

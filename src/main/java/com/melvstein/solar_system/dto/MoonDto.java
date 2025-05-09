@@ -1,6 +1,5 @@
 package com.melvstein.solar_system.dto;
 
-import jakarta.persistence.Column;
 import lombok.Builder;
 
 @Builder

@@ -33,6 +33,7 @@ public class Atmosphere {
     @Column(nullable = false)
     private Double emissiveIntensity;
 
+    @JsonBackReference
     @OneToOne
     @JoinColumn(name = "planet_id")
     private Planet planet;

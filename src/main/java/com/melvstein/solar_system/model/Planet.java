@@ -40,6 +40,7 @@ public class Planet {
     @Column(nullable = false)
     private Double speed;
 
+    @JsonManagedReference
     @OneToOne(
             mappedBy = "planet",
             cascade = CascadeType.ALL,
@@ -47,6 +48,7 @@ public class Planet {
     )
     private Atmosphere atmosphere;
 
+    @JsonManagedReference
     @OneToMany(
             mappedBy = "planet",
             cascade = CascadeType.ALL,

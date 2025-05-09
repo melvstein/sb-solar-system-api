@@ -1,9 +1,6 @@
 package com.melvstein.solar_system.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +9,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Setter
 @Getter
+@Builder
 public class ApiResponse<T> {
     private String code;
     private String message;
