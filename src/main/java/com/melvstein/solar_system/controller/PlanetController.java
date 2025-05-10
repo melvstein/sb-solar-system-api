@@ -5,7 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.melvstein.solar_system.constant.ApiConstants;
 import com.melvstein.solar_system.dto.ApiResponse;
 import com.melvstein.solar_system.dto.PlanetDto;
+import com.melvstein.solar_system.model.Atmosphere;
+import com.melvstein.solar_system.model.Moon;
 import com.melvstein.solar_system.model.Planet;
+import com.melvstein.solar_system.model.Ring;
 import com.melvstein.solar_system.repository.PlanetRepository;
 import com.melvstein.solar_system.service.PlanetService;
 import com.melvstein.solar_system.util.ApiResponseUtils;
@@ -114,6 +117,7 @@ public class PlanetController {
 
             if (planetOptional.isPresent()) {
                 Planet updatedPlanet = planetOptional.get();
+
                 if (planet.getRadius() != null) {
                     updatedPlanet.setRadius(planet.getRadius());
                 }
@@ -124,6 +128,81 @@ public class PlanetController {
 
                 if (planet.getSpeed() != null) {
                     updatedPlanet.setSpeed(planet.getSpeed());
+                }
+
+                if (planet.getAtmosphere() != null) {
+                    Atmosphere incomingAtmosphere = planet.getAtmosphere();
+                    Atmosphere existingAtmosphere = updatedPlanet.getAtmosphere();
+
+                    if (incomingAtmosphere.getRadius() != null) {
+                        existingAtmosphere.setRadius(incomingAtmosphere.getRadius());
+                    }
+
+                    if (incomingAtmosphere.getColor() != null) {
+                        existingAtmosphere.setColor(incomingAtmosphere.getColor());
+                    }
+
+                    if (incomingAtmosphere.getOpacity() != null) {
+                        existingAtmosphere.setOpacity(incomingAtmosphere.getOpacity());
+                    }
+
+                    if (incomingAtmosphere.getEmissive() != null) {
+                        existingAtmosphere.setEmissive(incomingAtmosphere.getEmissive());
+                    }
+
+                    if (incomingAtmosphere.getEmissiveIntensity() != null) {
+                        existingAtmosphere.setEmissiveIntensity(incomingAtmosphere.getEmissiveIntensity());
+                    }
+                }
+
+                if (planet.getMoons() != null) {
+                    List<Moon> incomingMoons = planet.getMoons();
+                    List<Moon> existingMoons = updatedPlanet.getMoons();
+
+                    incomingMoons.forEach((incomingMoon) -> {
+                        existingMoons.forEach((existingMoon) -> {
+                            if (incomingMoon.getName() != null && incomingMoon.getName().equals(existingMoon.getName())) {
+                                existingMoon.setName(incomingMoon.getName());
+
+                                if (incomingMoon.getRadius() != null) {
+                                    existingMoon.setRadius(incomingMoon.getRadius());
+                                }
+
+                                if (incomingMoon.getDistance() != null) {
+                                    existingMoon.setDistance(incomingMoon.getDistance());
+                                }
+
+                                if (incomingMoon.getSpeed() != null) {
+                                    existingMoon.setSpeed(incomingMoon.getSpeed());
+                                }
+                            }
+                        });
+                    });
+                }
+
+                if (planet.getRing() != null) {
+                    Ring incomingRing = planet.getRing();
+                    Ring existingRing = updatedPlanet.getRing();
+
+                    if (incomingRing.getColor() != null) {
+                        existingRing.setColor(incomingRing.getColor());
+                    }
+
+                    if (incomingRing.getInnerRadius() != null) {
+                        existingRing.setInnerRadius(incomingRing.getInnerRadius());
+                    }
+
+                    if (incomingRing.getOuterRadius() != null) {
+                        existingRing.setOuterRadius(incomingRing.getOuterRadius());
+                    }
+
+                    if (incomingRing.getTilt() != null) {
+                        existingRing.setTilt(incomingRing.getTilt());
+                    }
+
+                    if (incomingRing.getOpacity() != null) {
+                        existingRing.setOpacity(incomingRing.getOpacity());
+                    }
                 }
 
                 log.info("{} - id={}, request={}, updatedPlanet={}", Util.currentMethod(), id, objectMapper.writeValueAsString(planet), objectMapper.writeValueAsString(updatedPlanet));

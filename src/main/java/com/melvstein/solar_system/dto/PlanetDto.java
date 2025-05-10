@@ -21,6 +21,7 @@ public record PlanetDto(
         Double speed,
 
         AtmosphereDto atmosphere,
-        List<MoonDto> moons
+        List<MoonDto> moons,
+        RingDto ring
 ) {
 }

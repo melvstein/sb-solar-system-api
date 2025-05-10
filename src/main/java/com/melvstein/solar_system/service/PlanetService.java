@@ -39,10 +39,6 @@ public class PlanetService {
     }
 
     public PlanetDto save(Planet planet) {
-        if (planet.getAtmosphere() != null) {
-           planet.setAtmosphere(planet.getAtmosphere());
-        }
-
         Planet newPlanet = planetRepository.save(planet);
 
         return planetMapper.toDto(newPlanet);

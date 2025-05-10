@@ -40,21 +40,29 @@ public class Planet {
     @Column(nullable = false)
     private Double speed;
 
-    @JsonManagedReference
     @OneToOne(
             mappedBy = "planet",
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
+    @JsonManagedReference
     private Atmosphere atmosphere;
 
-    @JsonManagedReference
     @OneToMany(
             mappedBy = "planet",
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
+    @JsonManagedReference
     private List<Moon> moons;
+
+    @OneToOne(
+            mappedBy = "planet",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    @JsonManagedReference
+    private Ring ring;
 
     public void setAtmosphere(Atmosphere atmosphere) {
         this.atmosphere = atmosphere;
@@ -71,6 +79,14 @@ public class Planet {
             moons.forEach((moon) -> {
                 moon.setPlanet(this);
             });
+        }
+    }
+
+    public void setRing(Ring ring) {
+        this.ring = ring;
+
+        if (ring != null) {
+            ring.setPlanet(this);
         }
     }
 }

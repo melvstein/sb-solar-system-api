@@ -3,9 +3,11 @@ package com.melvstein.solar_system.mapper;
 import com.melvstein.solar_system.dto.AtmosphereDto;
 import com.melvstein.solar_system.dto.MoonDto;
 import com.melvstein.solar_system.dto.PlanetDto;
+import com.melvstein.solar_system.dto.RingDto;
 import com.melvstein.solar_system.model.Atmosphere;
 import com.melvstein.solar_system.model.Moon;
 import com.melvstein.solar_system.model.Planet;
+import com.melvstein.solar_system.model.Ring;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -15,10 +17,12 @@ import java.util.List;
 public class PlanetMapper {
     private final AtmosphereMapper atmosphereMapper;
     private final MoonMapper moonMapper;
+    private final RingMapper ringMapper;
 
-    public PlanetMapper(AtmosphereMapper atmosphereMapper, MoonMapper moonMapper) {
+    public PlanetMapper(AtmosphereMapper atmosphereMapper, MoonMapper moonMapper, RingMapper ringMapper) {
         this.atmosphereMapper = atmosphereMapper;
         this.moonMapper = moonMapper;
+        this.ringMapper = ringMapper;
     }
 
     public PlanetDto toDto(Planet planet) {
@@ -27,10 +31,13 @@ public class PlanetMapper {
         AtmosphereDto atmosphereDto = atmosphereMapper.toDto(planet.getAtmosphere());
 
         List<MoonDto> moonDtos = planet.getMoons() != null
-                ? planet.getMoons().stream()
+                ? planet.getMoons()
+                    .stream()
                     .map(moonMapper::toDto)
                     .toList()
                 : new ArrayList<>();
+
+        RingDto ringDto = ringMapper.toDto(planet.getRing());
 
         return PlanetDto.builder()
                 .name(planet.getName())
@@ -39,6 +46,7 @@ public class PlanetMapper {
                 .speed(planet.getSpeed())
                 .atmosphere(atmosphereDto)
                 .moons(moonDtos)
+                .ring(ringDto)
                 .build();
     }
 
@@ -51,27 +59,23 @@ public class PlanetMapper {
 
         Atmosphere atmosphere = atmosphereMapper.toEntity(dto.atmosphere());
 
-        Planet planet = Planet.builder()
+        List<Moon> moons = dto.moons() != null
+                ? dto.moons()
+                    .stream()
+                    .map(moonMapper::toEntity)
+                    .toList()
+                : new ArrayList<>();
+
+        Ring ring = ringMapper.toEntity(dto.ring());
+
+        return Planet.builder()
                 .name(dto.name())
                 .radius(dto.radius())
                 .distance(dto.distance())
                 .speed(dto.speed())
+                .atmosphere(atmosphere)
+                .moons(moons)
+                .ring(ring)
                 .build();
-
-        if (atmosphere != null) {
-            planet.setAtmosphere(atmosphere);
-        }
-
-        if (dto.moons() != null) {
-            List<Moon> moons = dto.moons().stream().map(moonDto -> {
-                Moon moon = moonMapper.toEntity(moonDto);
-                moon.setPlanet(planet);
-                return moon;
-            }).toList();
-
-            planet.setMoons(moons);
-        }
-
-        return planet;
     }
 }
