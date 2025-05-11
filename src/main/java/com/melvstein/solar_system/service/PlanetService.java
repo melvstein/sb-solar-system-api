@@ -7,6 +7,8 @@ import com.melvstein.solar_system.repository.PlanetRepository;
 import com.melvstein.solar_system.specification.PlanetSpecification;
 import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -56,6 +58,40 @@ public class PlanetService {
 
         List<Planet> planets = planetRepository.findAll(spec);
         return planetMapper.toDtos(planets);
+    }
+
+    public Page<PlanetDto> getAllWithPageable(@Nullable Map<String, Object> params, Pageable pageable) {
+        Specification<Planet> spec = Specification.where(null);
+
+        if (params != null) {
+            if (params.containsKey("hasAtmosphere")) {
+                spec = spec.and(PlanetSpecification.hasAtmosphere());
+            }
+
+            if (params.containsKey("hasNoAtmosphere")) {
+                spec = spec.and(PlanetSpecification.hasNoAtmosphere());
+            }
+
+            if (params.containsKey("hasMoon")) {
+                spec = spec.and(PlanetSpecification.hasMoon());
+            }
+
+            if (params.containsKey("hasNoMoon")) {
+                spec = spec.and(PlanetSpecification.hasNoMoon());
+            }
+
+            if (params.containsKey("hasRing")) {
+                spec = spec.and(PlanetSpecification.hasRing());
+            }
+
+            if (params.containsKey("hasNoRing")) {
+                spec = spec.and(PlanetSpecification.hasNoRing());
+            }
+        }
+
+        Page<Planet> planets = planetRepository.findAll(spec, pageable);
+
+        return planets.map(planetMapper::toDto);
     }
 
     public Optional<PlanetDto> getById(Long id) {

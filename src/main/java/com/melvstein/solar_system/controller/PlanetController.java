@@ -13,6 +13,9 @@ import com.melvstein.solar_system.service.PlanetService;
 import com.melvstein.solar_system.util.ApiResponseUtils;
 import com.melvstein.solar_system.util.Util;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,15 +37,11 @@ public class PlanetController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getPlanets(@RequestParam(required = false) Map<String, Object> params) {
+    public ResponseEntity<ApiResponse<Page<PlanetDto>>> getPlanets(@RequestParam(required = false) Map<String, Object> params, @PageableDefault(size = 5) Pageable pageable) {
         try {
-             List<PlanetDto> planets = new ArrayList<>(planetService.getAll(params));
+             Page<PlanetDto> planets = planetService.getAllWithPageable(params, pageable);
 
-             Map<String, Object> data = new HashMap<>();
-             data.put("count", planets.size());
-             data.put("items", planets);
-
-             ApiResponse<Map<String, Object>> response = ApiResponseUtils.success(data);
+             ApiResponse<Page<PlanetDto>> response = ApiResponseUtils.success(planets);
 
             log.info("{} response: {}", Util.currentMethod(), objectMapper.writeValueAsString(response));
 
