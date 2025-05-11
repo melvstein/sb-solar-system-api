@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 public class Ring {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(updatable = false)
     private Long id;
     private String color;
     private Double innerRadius;

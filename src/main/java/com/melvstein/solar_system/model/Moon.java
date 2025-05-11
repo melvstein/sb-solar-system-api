@@ -24,6 +24,7 @@ import lombok.NoArgsConstructor;
 public class Moon {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(updatable = false)
     private Long id;
 
     @Column(

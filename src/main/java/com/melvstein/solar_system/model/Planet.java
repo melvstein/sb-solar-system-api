@@ -23,6 +23,7 @@ import java.util.List;
 public class Planet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(updatable = false)
     private Long id;
 
     @Column(

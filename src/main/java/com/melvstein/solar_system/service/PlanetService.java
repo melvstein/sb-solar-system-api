@@ -1,14 +1,15 @@
 package com.melvstein.solar_system.service;
 
 import com.melvstein.solar_system.dto.PlanetDto;
-import com.melvstein.solar_system.mapper.PlanetMapper;
-import com.melvstein.solar_system.model.Atmosphere;
+import com.melvstein.solar_system.mapper.mapstruct.PlanetMapper;
 import com.melvstein.solar_system.model.Planet;
-import com.melvstein.solar_system.repository.AtmosphereRepository;
 import com.melvstein.solar_system.repository.PlanetRepository;
+import com.melvstein.solar_system.specification.PlanetSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -16,17 +17,21 @@ public class PlanetService {
 
     private final PlanetRepository planetRepository;
     private final PlanetMapper planetMapper;
-    private final AtmosphereRepository atmosphereRepository;
 
     @Autowired
-    public PlanetService(PlanetRepository planetRepository, PlanetMapper planetMapper, AtmosphereRepository atmosphereRepository) {
+    public PlanetService(PlanetRepository planetRepository, PlanetMapper planetMapper) {
         this.planetRepository = planetRepository;
         this.planetMapper = planetMapper;
-        this.atmosphereRepository = atmosphereRepository;
     }
 
-    public List<PlanetDto> getAll() {
-        List<Planet> planets = planetRepository.findAll();
+    public List<PlanetDto> getAll(Map<String, Object> params) {
+        Specification<Planet> spec = Specification.where(null);
+
+        if (params.containsKey("hasMoon")) {
+            spec = Specification.where(PlanetSpecification.hasMoon());
+        }
+
+        List<Planet> planets = planetRepository.findAll(spec);
         return planetMapper.toDto(planets);
     }
 

@@ -1,9 +1,13 @@
-package com.melvstein.solar_system.dto;
+package com.melvstein.solar_system.dto.builder;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+
 import java.util.List;
 
+import lombok.Builder;
+
+@Builder
 public record PlanetDto(
         Long id,
 

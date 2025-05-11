@@ -1,6 +1,6 @@
 package com.melvstein.solar_system.mapper;
 
-import com.melvstein.solar_system.dto.AtmosphereDto;
+import com.melvstein.solar_system.dto.builder.AtmosphereDto;
 import com.melvstein.solar_system.model.Atmosphere;
 import org.springframework.stereotype.Component;
 

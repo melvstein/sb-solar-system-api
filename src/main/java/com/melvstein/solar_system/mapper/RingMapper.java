@@ -1,6 +1,6 @@
 package com.melvstein.solar_system.mapper;
 
-import com.melvstein.solar_system.dto.RingDto;
+import com.melvstein.solar_system.dto.builder.RingDto;
 import com.melvstein.solar_system.model.Ring;
 import org.springframework.stereotype.Component;
 

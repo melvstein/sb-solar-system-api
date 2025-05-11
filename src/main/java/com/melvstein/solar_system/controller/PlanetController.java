@@ -9,12 +9,10 @@ import com.melvstein.solar_system.model.Atmosphere;
 import com.melvstein.solar_system.model.Moon;
 import com.melvstein.solar_system.model.Planet;
 import com.melvstein.solar_system.model.Ring;
-import com.melvstein.solar_system.repository.PlanetRepository;
 import com.melvstein.solar_system.service.PlanetService;
 import com.melvstein.solar_system.util.ApiResponseUtils;
 import com.melvstein.solar_system.util.Util;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,10 +33,15 @@ public class PlanetController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<PlanetDto>>> getPlanets() {
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getPlanets(@RequestParam(required = false) Map<String, Object> params) {
         try {
-             List<PlanetDto> planets = new ArrayList<>(planetService.getAll());
-             ApiResponse<List<PlanetDto>> response = ApiResponseUtils.success(planets);
+             List<PlanetDto> planets = new ArrayList<>(planetService.getAll(params));
+
+             Map<String, Object> data = new HashMap<>();
+             data.put("count", planets.size());
+             data.put("items", planets);
+
+             ApiResponse<Map<String, Object>> response = ApiResponseUtils.success(data);
 
             log.info("{} response: {}", Util.currentMethod(), objectMapper.writeValueAsString(response));
 
@@ -161,8 +164,10 @@ public class PlanetController {
 
                     incomingMoons.forEach((incomingMoon) -> {
                         existingMoons.forEach((existingMoon) -> {
-                            if (incomingMoon.getName() != null && incomingMoon.getName().equals(existingMoon.getName())) {
-                                existingMoon.setName(incomingMoon.getName());
+                            if (incomingMoon.getId().equals(existingMoon.getId())) {
+                                if (incomingMoon.getName() != null) {
+                                    existingMoon.setName(incomingMoon.getName());
+                                }
 
                                 if (incomingMoon.getRadius() != null) {
                                     existingMoon.setRadius(incomingMoon.getRadius());

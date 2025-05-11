@@ -1,7 +1,7 @@
 package com.melvstein.solar_system.service;
 
 import com.melvstein.solar_system.dto.AtmosphereDto;
-import com.melvstein.solar_system.mapper.AtmosphereMapper;
+import com.melvstein.solar_system.mapper.mapstruct.AtmosphereMapper;
 import com.melvstein.solar_system.repository.AtmosphereRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 public class Atmosphere {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(updatable = false)
     private Long id;
 
     @Column(nullable = false)

@@ -1,6 +1,6 @@
 package com.melvstein.solar_system.mapper;
 
-import com.melvstein.solar_system.dto.MoonDto;
+import com.melvstein.solar_system.dto.builder.MoonDto;
 import com.melvstein.solar_system.model.Moon;
 import org.springframework.stereotype.Component;
 
