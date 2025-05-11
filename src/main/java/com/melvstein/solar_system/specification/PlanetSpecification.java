@@ -8,11 +8,39 @@ import jakarta.persistence.criteria.Root;
 import org.springframework.data.jpa.domain.Specification;
 
 public class PlanetSpecification {
+    public static Specification<Planet> hasAtmosphere() {
+        return (root, query, builder) -> {
+            return builder.isNotNull(root.get("atmosphere"));
+        };
+    }
+
+    public static Specification<Planet> hasNoAtmosphere() {
+        return (root, query, builder) -> {
+            return builder.isNull(root.get("atmosphere"));
+        };
+    }
+
     public static Specification<Planet> hasMoon() {
         return (root, query, builder) -> {
-            Join<Object, Object> moonsJoin = root.join("moons");
+            return builder.isNotEmpty(root.get("moons"));
+        };
+    }
 
-            return builder.isNotNull(moonsJoin.get("id"));
+    public static Specification<Planet> hasNoMoon() {
+        return (root, query, builder) -> {
+            return builder.isEmpty(root.get("moons"));
+        };
+    }
+
+    public static Specification<Planet> hasRing() {
+        return (root, query, builder) -> {
+            return builder.isNotNull(root.get("ring"));
+        };
+    }
+
+    public static Specification<Planet> hasNoRing() {
+        return (root, query, builder) -> {
+            return builder.isNull(root.get("ring"));
         };
     }
 }

@@ -17,6 +17,6 @@ import java.util.List;
 public interface PlanetMapper {
     PlanetDto toDto(Planet planet);
     Planet toEntity(PlanetDto dto);
-    List<PlanetDto> toDto(List<Planet> planets);
-    List<Planet> toEntity(List<PlanetDto> dtos);
+    List<PlanetDto> toDtos(List<Planet> planets);
+    List<Planet> toEntities(List<PlanetDto> dtos);
 }

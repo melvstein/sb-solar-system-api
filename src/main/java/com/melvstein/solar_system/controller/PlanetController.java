@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/planets")
@@ -107,6 +108,28 @@ public class PlanetController {
         } catch (Exception e) {
             log.error(Util.currentMethod(), "error", e);
 
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponseUtils.error());
+        }
+    }
+
+    @PostMapping("/bulk")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> saveAllPlanets (@RequestBody List<Planet> planets) {
+        try {
+            List<PlanetDto> existingPlanets = planetService.getAll(null);
+            Set<String> existingPlanetNames = existingPlanets.stream().map(PlanetDto::name).collect(Collectors.toSet());
+
+            List<Planet> insertPlanets = planets.stream().filter(p -> !existingPlanetNames.contains(p.getName())).toList();
+
+            List<PlanetDto> newPlanets = planetService.saveAll(insertPlanets);
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("count", newPlanets.size());
+            data.put("items", newPlanets);
+
+            return ResponseEntity.ok(ApiResponseUtils.success(data));
+        } catch (Exception e) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponseUtils.error());

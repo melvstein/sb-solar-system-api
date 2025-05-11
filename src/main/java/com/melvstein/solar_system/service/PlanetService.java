@@ -5,6 +5,7 @@ import com.melvstein.solar_system.mapper.mapstruct.PlanetMapper;
 import com.melvstein.solar_system.model.Planet;
 import com.melvstein.solar_system.repository.PlanetRepository;
 import com.melvstein.solar_system.specification.PlanetSpecification;
+import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -24,15 +25,37 @@ public class PlanetService {
         this.planetMapper = planetMapper;
     }
 
-    public List<PlanetDto> getAll(Map<String, Object> params) {
+    public List<PlanetDto> getAll(@Nullable Map<String, Object> params) {
         Specification<Planet> spec = Specification.where(null);
 
-        if (params.containsKey("hasMoon")) {
-            spec = Specification.where(PlanetSpecification.hasMoon());
+        if (params != null) {
+            if (params.containsKey("hasAtmosphere")) {
+                spec = spec.and(PlanetSpecification.hasAtmosphere());
+            }
+
+            if (params.containsKey("hasNoAtmosphere")) {
+                spec = spec.and(PlanetSpecification.hasNoAtmosphere());
+            }
+
+            if (params.containsKey("hasMoon")) {
+                spec = spec.and(PlanetSpecification.hasMoon());
+            }
+
+            if (params.containsKey("hasNoMoon")) {
+                spec = spec.and(PlanetSpecification.hasNoMoon());
+            }
+
+            if (params.containsKey("hasRing")) {
+                spec = spec.and(PlanetSpecification.hasRing());
+            }
+
+            if (params.containsKey("hasNoRing")) {
+                spec = spec.and(PlanetSpecification.hasNoRing());
+            }
         }
 
         List<Planet> planets = planetRepository.findAll(spec);
-        return planetMapper.toDto(planets);
+        return planetMapper.toDtos(planets);
     }
 
     public Optional<PlanetDto> getById(Long id) {
@@ -47,6 +70,12 @@ public class PlanetService {
         Planet newPlanet = planetRepository.save(planet);
 
         return planetMapper.toDto(newPlanet);
+    }
+
+    public List<PlanetDto> saveAll(List<Planet> planets) {
+        List<Planet> newPlanets = planetRepository.saveAll(planets);
+
+        return planetMapper.toDtos(newPlanets);
     }
 
     public void deleteById(Long id) {
