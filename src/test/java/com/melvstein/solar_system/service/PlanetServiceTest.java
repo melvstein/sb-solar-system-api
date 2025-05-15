@@ -14,20 +14,17 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
-import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
 class PlanetServiceTest {
@@ -206,7 +203,7 @@ class PlanetServiceTest {
     public void shouldReturnAllPlanets_whenNoFilterIsApplied() {
         // Arrange
         Planet planet = createPlanetEntity();
-        when(planetRepository.findAll(any(Specification.class))).thenReturn(List.of(planet));
+        when(planetRepository.findAll(ArgumentMatchers.<Specification<Planet>>any())).thenReturn(List.of(planet));
 
         // Act
         List<PlanetDto> planets = planetService.getAll(null);
@@ -275,9 +272,23 @@ class PlanetServiceTest {
         assertFalse(savePlanets.isEmpty());
     }
 
-    @Disabled("Not needed for now")
+    @Tag("supported")
     @Test
     public void deleteById() {
+        // Arrange
+        Planet planet = createPlanetEntity();
+        PlanetDto planetDto = createPlanetDto(planet);
+
+        when(planetRepository.save(planet)).thenReturn(planet);
+        when(planetMapper.toDto(planet)).thenReturn(planetDto);
+
+        // Action
+        PlanetDto savedPlanet = planetService.save(planet);
+
+        // Action
+        planetService.deleteById(1L);
+
+        // Assert
     }
 
     @Disabled("Not needed for now")
