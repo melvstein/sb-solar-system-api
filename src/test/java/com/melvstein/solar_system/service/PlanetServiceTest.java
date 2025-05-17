@@ -10,6 +10,7 @@ import com.melvstein.solar_system.model.Moon;
 import com.melvstein.solar_system.model.Planet;
 import com.melvstein.solar_system.model.Ring;
 import com.melvstein.solar_system.repository.PlanetRepository;
+import com.melvstein.solar_system.util.Utils;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -18,13 +19,17 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class PlanetServiceTest {
@@ -37,267 +42,184 @@ class PlanetServiceTest {
     @InjectMocks
     private PlanetService planetService;
 
-    public Planet createPlanetEntity() {
-        Atmosphere atmosphere = Atmosphere.builder()
-                .id(1L)
-                .radius(2.3)
-                .color("#ffe0b2")
-                .opacity(0.25)
-                .emissive("#ffd180")
-                .emissiveIntensity(0.5)
-                .build();
-
-        List<Moon> moons = List.of(
-                Moon.builder()
-                        .id(1L)
-                        .name("Titan")
-                        .radius(0.25)
-                        .distance(3.5)
-                        .speed(0.025)
-                        .build(),
-                Moon.builder()
-                        .id(2L)
-                        .name("Enceladus")
-                        .radius(0.1)
-                        .distance(2.8)
-                        .speed(0.03)
-                        .build()
-        );
-
-        Ring ring = Ring.builder()
-                .id(1L)
-                .color("#b1976b")
-                .innerRadius(2.2)
-                .outerRadius(3.5)
-                .tilt(1.1047963267948965)
-                .opacity(0.6)
-                .build();
-
-        return Planet.builder()
-                .id(1L)
-                .name("Saturn")
-                .radius(2.0)
-                .distance(65.0)
-                .speed(0.005)
-                .atmosphere(atmosphere)
-                .moons(moons)
-                .ring(ring)
-                .build();
-    }
-
-    public PlanetDto createPlanetDto(Planet planet) {
-        AtmosphereDto atmosphereDto = new AtmosphereDto(
-                planet.getAtmosphere().getId(),
-                planet.getAtmosphere().getRadius(),
-                planet.getAtmosphere().getColor(),
-                planet.getAtmosphere().getOpacity(),
-                planet.getAtmosphere().getEmissive(),
-                planet.getAtmosphere().getEmissiveIntensity()
-        );
-
-        List<MoonDto> moons = planet.getMoons().stream().map((moon) -> {
-            return new MoonDto(
-                    moon.getId(),
-                    moon.getName(),
-                    moon.getRadius(),
-                    moon.getDistance(),
-                    moon.getSpeed()
-            );
-        }).toList();
-
-        RingDto ringDto = new RingDto(
-                planet.getRing().getId(),
-                planet.getRing().getColor(),
-                planet.getRing().getInnerRadius(),
-                planet.getRing().getOuterRadius(),
-                planet.getRing().getTilt(),
-                planet.getRing().getOpacity()
-        );
-
-       return new PlanetDto(
-                planet.getId(),
-                planet.getName(),
-                planet.getRadius(),
-                planet.getDistance(),
-                planet.getSpeed(),
-                atmosphereDto,
-                moons,
-                ringDto
-        );
-    }
-
-    public List<Planet> createPlanetEntities() {
-        Atmosphere atmosphere1 = Atmosphere.builder()
-                .id(2L)
-                .radius(2.3)
-                .color("#ffe0b2")
-                .opacity(0.25)
-                .emissive("#ffd180")
-                .emissiveIntensity(0.5)
-                .build();
-
-        List<Moon> moons1 = List.of(
-                Moon.builder().id(2L).name("Titan1").radius(0.25).distance(3.5).speed(0.025).build(),
-                Moon.builder().id(3L).name("Enceladus1").radius(0.1).distance(2.8).speed(0.03).build()
-        );
-
-        Ring ring1 = Ring.builder()
-                .id(2L)
-                .color("#b1976b")
-                .innerRadius(2.2)
-                .outerRadius(3.5)
-                .tilt(1.1047963267948965)
-                .opacity(0.6)
-                .build();
-
-        Planet planet1 = Planet.builder()
-                .id(3L)
-                .name("Saturn1")
-                .radius(2.0)
-                .distance(65.0)
-                .speed(0.005)
-                .atmosphere(atmosphere1)
-                .moons(moons1)
-                .ring(ring1)
-                .build();
-
-        Atmosphere atmosphere2 = Atmosphere.builder()
-                .id(3L)
-                .radius(2.1)
-                .color("#ffe0b2")
-                .opacity(0.2)
-                .emissive("#ffd180")
-                .emissiveIntensity(0.4)
-                .build();
-
-        List<Moon> moons2 = List.of(
-                Moon.builder().id(4L).name("Europa").radius(0.22).distance(4.1).speed(0.02).build(),
-                Moon.builder().id(5L).name("Io").radius(0.15).distance(3.9).speed(0.018).build()
-        );
-
-        Ring ring2 = Ring.builder()
-                .id(3L)
-                .color("#a0a0a0")
-                .innerRadius(1.8)
-                .outerRadius(3.2)
-                .tilt(0.9)
-                .opacity(0.5)
-                .build();
-
-        Planet planet2 = Planet.builder()
-                .id(4L)
-                .name("Jupiter1")
-                .radius(2.2)
-                .distance(60.0)
-                .speed(0.006)
-                .atmosphere(atmosphere2)
-                .moons(moons2)
-                .ring(ring2)
-                .build();
-
-        return List.of(planet1, planet2);
-    }
-
     @Tag("supported")
     @Test
-    public void shouldReturnAllPlanets_whenNoFilterIsApplied() {
+    public void test_getAll_shouldReturnAllPlanets_whenNoFilterIsApplied() {
         // Arrange
-        Planet planet = createPlanetEntity();
-        when(planetRepository.findAll(ArgumentMatchers.<Specification<Planet>>any())).thenReturn(List.of(planet));
+        List<Planet> planets = Utils.createPlanetEntities();
+        List<PlanetDto> PlanetDtos = planets.stream()
+                .map(Utils::createPlanetDto)
+                .toList();
+
+        Specification<Planet> spec = Specification.where(null);
+        when(planetRepository.findAll(spec)).thenReturn(planets);
+        when(planetMapper.toDtos(planets)).thenReturn(PlanetDtos);
 
         // Act
-        List<PlanetDto> planets = planetService.getAll(null);
+        List<PlanetDto> result = planetService.getAll(null);
 
-        // Assert
-        assertNotNull(planets);
-    }
+        System.out.println(result);
 
-    @Disabled("Not needed for now")
-    @Test
-    public void getAllWithPageable() {
+        // Assertion
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
 
+        verify(planetRepository, times(1)).findAll(ArgumentMatchers.<Specification<Planet>>any());
     }
 
     @Tag("supported")
     @Test
-    public void getById_shouldReturnPlanet_whenIdIsValid() {
+    public void test_getAllWithPageable_shouldReturnPageable_whenSuccess() {
         // Arrange
-        Planet planet = createPlanetEntity();
-        PlanetDto planetDto = createPlanetDto(planet);
+        List<Planet> planets = Utils.createPlanetEntities();
+        List<PlanetDto> planetDtos = planets.stream()
+                .map(Utils::createPlanetDto)
+                .toList();
 
-        when(planetRepository.findById(1L)).thenReturn(Optional.of(planet));
+        Specification<Planet> spec = Specification.where(null);
+        Pageable pageable = PageRequest.of(0, 5);
+
+        Page<Planet> planetPage = new PageImpl<>(planets, pageable, planets.size());
+
+        when(planetRepository.findAll(spec, pageable)).thenReturn(planetPage);
+        // Stub planetMapper.toDto for each planet individually
+        for (int i = 0; i < planets.size(); i++) {
+            when(planetMapper.toDto(planets.get(i))).thenReturn(planetDtos.get(i));
+        }
+
+        // Action
+        Page<PlanetDto> result = planetService.getAllWithPageable(null, pageable);
+
+        result.getContent().forEach(System.out::println);
+
+        // Assertion
+        assertFalse(result.getContent().isEmpty());
+        assertTrue(result.hasContent());
+
+        verify(planetRepository, times(1)).findAll(spec, pageable);
+    }
+
+    @Tag("supported")
+    @Test
+    public void test_getById_shouldReturnPlanet_whenIdIsValid() {
+        // Arrange
+        Planet planet = Utils.createPlanetEntity();
+        PlanetDto planetDto = Utils.createPlanetDto(planet);
+
+        when(planetRepository.findById(planet.getId())).thenReturn(Optional.of(planet));
         when(planetMapper.toDto(planet)).thenReturn(planetDto);
 
         // Action
-        Optional<PlanetDto> result = planetService.getById(1L);
+        Optional<PlanetDto> result = planetService.getById(planet.getId());
 
-        // Assert
+        System.out.println(result);
+
+        // Assertion
         System.out.println(result);
         assertNotNull(result);
         assertFalse(result.isEmpty());
+
+        verify(planetRepository, times(1)).findById(planet.getId());
     }
 
     @Tag("supported")
     @Test
-    public void save_shouldReturnPlanet_whenSaveSuccessfully() {
+    public void test_save_shouldReturnPlanet_whenSaveSuccessfully() {
         // Arrange
-        Planet planet = createPlanetEntity();
-        PlanetDto planetDto = createPlanetDto(planet);
+        Planet planet = Utils.createPlanetEntity();
+        PlanetDto planetDto = Utils.createPlanetDto(planet);
 
         when(planetRepository.save(planet)).thenReturn(planet);
         when(planetMapper.toDto(planet)).thenReturn(planetDto);
 
         // Action
-        PlanetDto savedPlanet = planetService.save(planet);
+        PlanetDto result = planetService.save(planet);
 
-        // Assert
-        assertNotNull(savedPlanet);
-        assertEquals(planet.getName(), savedPlanet.name());
+        System.out.println(result);
+
+        // Assertion
+        assertNotNull(result);
+        assertEquals(planet.getName(), result.name());
+
+        verify(planetRepository, times(1)).save(planet);
     }
 
     @Tag("supported")
     @Test
-    public void saveAll_shouldReturnListOfPlanets_whenSaveSuccessfully() {
+    public void test_saveAll_shouldReturnListOfPlanets_whenSaveSuccessfully() {
         // Arrange
-        List<Planet> planets = createPlanetEntities();
-        List<PlanetDto> planetDtos = planets.stream().map(this::createPlanetDto).toList();
+        List<Planet> planets = Utils.createPlanetEntities();
+        List<PlanetDto> planetDtos = planets.stream()
+                .map(Utils::createPlanetDto)
+                .toList();
 
         when(planetRepository.saveAll(planets)).thenReturn(planets);
         when(planetMapper.toDtos(planets)).thenReturn(planetDtos);
 
         // Action
-        List<PlanetDto> savePlanets = planetService.saveAll(planets);
+        List<PlanetDto> result = planetService.saveAll(planets);
 
-        // Assert
-        assertFalse(savePlanets.isEmpty());
+        result.forEach(System.out::println);
+
+        // Assertion
+        assertFalse(result.isEmpty());
+
+        verify(planetRepository, times(1)).saveAll(planets);
     }
 
     @Tag("supported")
     @Test
-    public void deleteById() {
+    public void test_deleteById_shouldDelete_whenRecordExists() {
         // Arrange
-        Planet planet = createPlanetEntity();
-        PlanetDto planetDto = createPlanetDto(planet);
+        Planet planet = Utils.createPlanetEntity();
+        PlanetDto planetDto = Utils.createPlanetDto(planet);
 
-        when(planetRepository.save(planet)).thenReturn(planet);
+        // Action
+        planetService.deleteById(0L);
+
+        verify(planetRepository, times(1)).deleteById(0L);
+    }
+
+    @Tag("supported")
+    @Test
+    public void test_getByName_shouldReturnPlanetByName_whenExists() {
+        // Arrange
+        Planet planet = Utils.createPlanetEntity();
+        PlanetDto planetDto = Utils.createPlanetDto(planet);
+
+        when(planetRepository.findByName(planet.getName())).thenReturn(planet);
         when(planetMapper.toDto(planet)).thenReturn(planetDto);
 
         // Action
-        PlanetDto savedPlanet = planetService.save(planet);
+        PlanetDto result = planetService.getByName(planet.getName());
+
+        System.out.println(result);
+
+        // Assertion
+        assertNotNull(result);
+        assertEquals(planet.getName(), result.name());
+
+        verify(planetRepository, times(1)).findByName(planet.getName());
+    }
+
+    @Tag("supported")
+    @Test
+    public void test_existsById_shouldReturnPlanetById_whenExists() {
+        // Arrange
+        Planet planet = Utils.createPlanetEntity();
+        PlanetDto planetDto = Utils.createPlanetDto(planet);
+
+        when(planetRepository.findById(planet.getId())).thenReturn(Optional.of(planet));
+        when(planetMapper.toDto(planet)).thenReturn(planetDto);
 
         // Action
-        planetService.deleteById(1L);
+        Optional<PlanetDto> result = planetService.getById(planet.getId());
 
-        // Assert
-    }
+        System.out.println(result);
 
-    @Disabled("Not needed for now")
-    @Test
-    public void getByName() {
-    }
-
-    @Disabled("Not needed for now")
-    @Test
-    public void existsById() {
+        // Assertion
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        assertEquals(planet.getName(), result.get().name());
     }
 }
