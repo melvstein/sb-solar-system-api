@@ -11,7 +11,7 @@ import com.melvstein.solar_system.model.Planet;
 import com.melvstein.solar_system.model.Ring;
 import com.melvstein.solar_system.service.PlanetService;
 import com.melvstein.solar_system.util.ApiResponseUtils;
-import com.melvstein.solar_system.util.Util;
+import com.melvstein.solar_system.util.Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,7 +24,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/planets")
+@RequestMapping("/api/v1/planets")
 @Slf4j
 public class PlanetController {
 
@@ -43,11 +43,11 @@ public class PlanetController {
 
              ApiResponse<Page<PlanetDto>> response = ApiResponseUtils.success(planets);
 
-            log.info("{} response: {}", Util.currentMethod(), objectMapper.writeValueAsString(response));
+            log.info("{} response: {}", Utils.currentMethod(), objectMapper.writeValueAsString(response));
 
              return ResponseEntity.ok(response);
          } catch (Exception e) {
-            log.error(Util.currentMethod(), "error", e);
+            log.error(Utils.currentMethod(), "error", e);
 
              return ResponseEntity
                      .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -63,12 +63,12 @@ public class PlanetController {
             planet.ifPresentOrElse(
                     p -> {
                         try {
-                            log.info("{} - id={}, planet={}", Util.currentMethod(), id, objectMapper.writeValueAsString(p));
+                            log.info("{} - id={}, planet={}", Utils.currentMethod(), id, objectMapper.writeValueAsString(p));
                         } catch (JsonProcessingException e) {
                             throw new RuntimeException(e);
                         }
                     },
-                    () -> log.warn("{} - id={}, planet not found", Util.currentMethod(), id)
+                    () -> log.warn("{} - id={}, planet not found", Utils.currentMethod(), id)
             );
 
             return planet
@@ -78,7 +78,7 @@ public class PlanetController {
                             .body(ApiResponseUtils.error(ApiConstants.RESPONSE_ERROR.get("code"), "Planet not found", null))
                     );
         } catch (Exception e) {
-            log.error(Util.currentMethod(), "error", e);
+            log.error(Utils.currentMethod(), "error", e);
 
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -92,7 +92,7 @@ public class PlanetController {
             PlanetDto existingPlanet = planetService.getByName(planet.getName());
 
             if (existingPlanet != null) {
-                log.info("{} - request={}, existingPlanet={}", Util.currentMethod(), objectMapper.writeValueAsString(planet), objectMapper.writeValueAsString(existingPlanet));
+                log.info("{} - request={}, existingPlanet={}", Utils.currentMethod(), objectMapper.writeValueAsString(planet), objectMapper.writeValueAsString(existingPlanet));
 
                 return ResponseEntity
                         .status(HttpStatus.OK)
@@ -101,11 +101,11 @@ public class PlanetController {
 
             PlanetDto newPlanet = planetService.save(planet);
 
-            log.info("{} - request={}, newPlanet={}", Util.currentMethod(), objectMapper.writeValueAsString(planet), objectMapper.writeValueAsString(newPlanet));
+            log.info("{} - request={}, newPlanet={}", Utils.currentMethod(), objectMapper.writeValueAsString(planet), objectMapper.writeValueAsString(newPlanet));
 
             return ResponseEntity.ok(ApiResponseUtils.success(newPlanet));
         } catch (Exception e) {
-            log.error(Util.currentMethod(), "error", e);
+            log.error(Utils.currentMethod(), "error", e);
 
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -120,7 +120,6 @@ public class PlanetController {
             Set<String> existingPlanetNames = existingPlanets.stream().map(PlanetDto::name).collect(Collectors.toSet());
 
             List<Planet> insertPlanets = planets.stream().filter(p -> !existingPlanetNames.contains(p.getName())).toList();
-
             List<PlanetDto> newPlanets = planetService.saveAll(insertPlanets);
 
             Map<String, Object> data = new HashMap<>();
@@ -232,7 +231,7 @@ public class PlanetController {
                     }
                 }
 
-                log.info("{} - id={}, request={}, updatedPlanet={}", Util.currentMethod(), id, objectMapper.writeValueAsString(planet), objectMapper.writeValueAsString(updatedPlanet));
+                log.info("{} - id={}, request={}, updatedPlanet={}", Utils.currentMethod(), id, objectMapper.writeValueAsString(planet), objectMapper.writeValueAsString(updatedPlanet));
 
                 return ResponseEntity.ok(ApiResponseUtils.success(planetService.save(updatedPlanet)));
             } else {
@@ -242,7 +241,7 @@ public class PlanetController {
             }
 
         } catch (Exception e) {
-            log.error(Util.currentMethod(), "error", e);
+            log.error(Utils.currentMethod(), "error", e);
 
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -261,13 +260,13 @@ public class PlanetController {
                         .body(ApiResponseUtils.error(ApiConstants.RESPONSE_ERROR.get("code"), "Planet not found", null));
             }
 
-            log.info("{} - id={}", Util.currentMethod(), id);
+            log.info("{} - id={}", Utils.currentMethod(), id);
 
             planetService.deleteById(id);
 
             return ResponseEntity.ok(ApiResponseUtils.success(ApiConstants.RESPONSE_SUCCESS.get("code"), "Deleted Successfully", null));
         } catch (Exception e) {
-            log.error(Util.currentMethod(), "error", e);
+            log.error(Utils.currentMethod(), "error", e);
 
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)

@@ -109,6 +109,7 @@ public class PlanetService {
     }
 
     public List<PlanetDto> saveAll(List<Planet> planets) {
+       //List<Planet> planets = planetMapper.toEntities(planetDtos);
         List<Planet> newPlanets = planetRepository.saveAll(planets);
 
         return planetMapper.toDtos(newPlanets);
