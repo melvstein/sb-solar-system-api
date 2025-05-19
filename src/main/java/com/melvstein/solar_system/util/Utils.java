@@ -25,7 +25,6 @@ public class Utils {
 
     public static Planet createPlanetEntity() {
         Atmosphere atmosphere = Atmosphere.builder()
-                .id(1L)
                 .radius(2.3)
                 .color("#ffe0b2")
                 .opacity(0.25)
@@ -35,14 +34,12 @@ public class Utils {
 
         List<Moon> moons = List.of(
                 Moon.builder()
-                        .id(1L)
                         .name("Titan")
                         .radius(0.25)
                         .distance(3.5)
                         .speed(0.025)
                         .build(),
                 Moon.builder()
-                        .id(2L)
                         .name("Enceladus")
                         .radius(0.1)
                         .distance(2.8)
@@ -51,7 +48,6 @@ public class Utils {
         );
 
         Ring ring = Ring.builder()
-                .id(1L)
                 .color("#b1976b")
                 .innerRadius(2.2)
                 .outerRadius(3.5)
@@ -59,8 +55,7 @@ public class Utils {
                 .opacity(0.6)
                 .build();
 
-        return Planet.builder()
-                .id(1L)
+        Planet planet = Planet.builder()
                 .name("Saturn")
                 .radius(2.0)
                 .distance(65.0)
@@ -69,6 +64,12 @@ public class Utils {
                 .moons(moons)
                 .ring(ring)
                 .build();
+
+        atmosphere.setPlanet(planet);
+        moons.forEach(moon -> moon.setPlanet(planet));
+        ring.setPlanet(planet);
+
+        return planet;
     }
 
     public static PlanetDto createPlanetDto(Planet planet) {
@@ -114,7 +115,6 @@ public class Utils {
 
     public static List<Planet> createPlanetEntities() {
         Atmosphere atmosphere1 = Atmosphere.builder()
-                .id(2L)
                 .radius(2.3)
                 .color("#ffe0b2")
                 .opacity(0.25)
@@ -123,12 +123,11 @@ public class Utils {
                 .build();
 
         List<Moon> moons1 = List.of(
-                Moon.builder().id(2L).name("Titan1").radius(0.25).distance(3.5).speed(0.025).build(),
-                Moon.builder().id(3L).name("Enceladus1").radius(0.1).distance(2.8).speed(0.03).build()
+                Moon.builder().name("Titan1").radius(0.25).distance(3.5).speed(0.025).build(),
+                Moon.builder().name("Enceladus1").radius(0.1).distance(2.8).speed(0.03).build()
         );
 
         Ring ring1 = Ring.builder()
-                .id(2L)
                 .color("#b1976b")
                 .innerRadius(2.2)
                 .outerRadius(3.5)
@@ -137,7 +136,6 @@ public class Utils {
                 .build();
 
         Planet planet1 = Planet.builder()
-                .id(3L)
                 .name("Saturn1")
                 .radius(2.0)
                 .distance(65.0)
@@ -147,8 +145,11 @@ public class Utils {
                 .ring(ring1)
                 .build();
 
+        atmosphere1.setPlanet(planet1);
+        moons1.forEach(moon -> moon.setPlanet(planet1));
+        ring1.setPlanet(planet1);
+
         Atmosphere atmosphere2 = Atmosphere.builder()
-                .id(3L)
                 .radius(2.1)
                 .color("#ffe0b2")
                 .opacity(0.2)
@@ -157,12 +158,11 @@ public class Utils {
                 .build();
 
         List<Moon> moons2 = List.of(
-                Moon.builder().id(4L).name("Europa").radius(0.22).distance(4.1).speed(0.02).build(),
-                Moon.builder().id(5L).name("Io").radius(0.15).distance(3.9).speed(0.018).build()
+                Moon.builder().name("Europa").radius(0.22).distance(4.1).speed(0.02).build(),
+                Moon.builder().name("Io").radius(0.15).distance(3.9).speed(0.018).build()
         );
 
         Ring ring2 = Ring.builder()
-                .id(3L)
                 .color("#a0a0a0")
                 .innerRadius(1.8)
                 .outerRadius(3.2)
@@ -171,7 +171,6 @@ public class Utils {
                 .build();
 
         Planet planet2 = Planet.builder()
-                .id(4L)
                 .name("Jupiter1")
                 .radius(2.2)
                 .distance(60.0)
@@ -180,6 +179,10 @@ public class Utils {
                 .moons(moons2)
                 .ring(ring2)
                 .build();
+
+        atmosphere2.setPlanet(planet2);
+        moons2.forEach(moon -> moon.setPlanet(planet2));
+        ring2.setPlanet(planet2);
 
         return List.of(planet1, planet2);
     }

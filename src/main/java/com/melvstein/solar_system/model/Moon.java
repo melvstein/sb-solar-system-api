@@ -2,15 +2,13 @@ package com.melvstein.solar_system.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Entity
 @Table(
         name = "moons",
         uniqueConstraints = {
@@ -20,7 +18,7 @@ import lombok.NoArgsConstructor;
                 )
         }
 )
-@Entity
+@ToString(exclude = "planet")
 public class Moon {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

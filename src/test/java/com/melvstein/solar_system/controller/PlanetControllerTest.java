@@ -9,10 +9,14 @@ import com.melvstein.solar_system.model.Planet;
 import com.melvstein.solar_system.repository.PlanetRepository;
 import com.melvstein.solar_system.service.PlanetService;
 import com.melvstein.solar_system.util.Utils;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,15 +25,20 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ActiveProfiles("test")
+@Transactional
+@ActiveProfiles("test-h2")
 @AutoConfigureMockMvc
 @SpringBootTest
 public class PlanetControllerTest {
 
+    private static final Logger log = LoggerFactory.getLogger(PlanetControllerTest.class);
     @Autowired
     private MockMvc mockMvc;
 
@@ -45,19 +54,25 @@ public class PlanetControllerTest {
     @Autowired
     private PlanetMapper planetMapper;
 
+    @Autowired
+    private EntityManager entityManager;
+
     private PlanetDto planetDto;
     private static final String apiPath = "/api/v1/planets";
 
     @BeforeEach
     public void setUp() {
-        Planet planet = Utils.createPlanetEntity();
-        // planetDto = planetService.save(planet);
+        List<Planet> planets = Utils.createPlanetEntities();
+        List<Planet> result = planetRepository.saveAll(planets);
+        System.out.println("Created Planets:" + result);
+
+        entityManager.flush();
+        entityManager.clear();
     }
 
     @AfterEach
     public void tearDown() {
-
-        // planetRepository.deleteAll();
+        planetRepository.deleteAll();
     }
 
     @Tag("supported")
@@ -79,6 +94,8 @@ public class PlanetControllerTest {
         assertEquals(ApiConstants.RESPONSE_SUCCESS.get("message"), message);
         assertNotNull(content);
         assertFalse(content.isEmpty());
+
+        log.info("Get Planets: {}", content);
     }
 
     @Tag("supported")
@@ -95,10 +112,37 @@ public class PlanetControllerTest {
         JsonNode data = response.path("data");
         String name = data.get("name").asText();
 
-        System.out.println(planetDto);
         assertEquals(ApiConstants.RESPONSE_SUCCESS.get("code"), code);
         assertEquals(ApiConstants.RESPONSE_SUCCESS.get("message"), message);
         assertNotNull(data);
         assertFalse(data.isEmpty());
+
+        log.info("Get planet by ID: {}", response);
+    }
+
+    @Tag("supported")
+    @Test
+    public void test_savePlanet() throws Exception {
+        Planet planet = Utils.createPlanetEntity();
+        String jsonRequest = objectMapper.writeValueAsString(planet);
+
+        MvcResult result = mockMvc.perform(post(apiPath)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonRequest))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String responseString = result.getResponse().getContentAsString();
+        JsonNode response = objectMapper.readTree(responseString);
+        String code = response.path("code").asText();
+        String message = response.path("message").asText();
+        JsonNode data = response.path("data");
+
+        assertEquals(ApiConstants.RESPONSE_SUCCESS.get("code"), code);
+        assertEquals(ApiConstants.RESPONSE_SUCCESS.get("message"), message);
+        assertNotNull(data);
+        assertFalse(data.isEmpty());
+
+        log.info("Saved result: {}", response);
     }
 }
