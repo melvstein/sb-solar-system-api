@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -55,7 +56,7 @@ public class Planet {
             orphanRemoval = true
     )
     @JsonManagedReference
-    private List<Moon> moons;
+    private List<Moon> moons = new ArrayList<>();
 
     @OneToOne(
             mappedBy = "planet",

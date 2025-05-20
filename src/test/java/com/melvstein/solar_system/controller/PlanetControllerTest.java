@@ -25,11 +25,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Transactional
@@ -63,21 +63,24 @@ public class PlanetControllerTest {
     @BeforeEach
     public void setUp() {
         List<Planet> planets = Utils.createPlanetEntities();
-        List<Planet> result = planetRepository.saveAll(planets);
-        System.out.println("Created Planets:" + result);
+        // List<Planet> result = planetRepository.saveAll(planets);
+        // System.out.println("Created Planets:" + result);
 
-        entityManager.flush();
-        entityManager.clear();
+        //entityManager.flush();
+        //entityManager.clear();
     }
 
     @AfterEach
     public void tearDown() {
-        planetRepository.deleteAll();
+        // planetRepository.deleteAll();
     }
 
     @Tag("supported")
     @Test
     public void test_getAllPlanets() throws Exception {
+        List<Planet> planets = Utils.createPlanetEntities();
+        planetService.saveAll(planets);
+
         MvcResult result = mockMvc.perform(get(apiPath)
                         .contentType(MediaType.APPLICATION_JSON))
                         .andExpect(status().isOk())
@@ -101,6 +104,9 @@ public class PlanetControllerTest {
     @Tag("supported")
     @Test
     public void test_getPlanetById() throws Exception {
+        List<Planet> planets = Utils.createPlanetEntities();
+        planetService.saveAll(planets);
+
         MvcResult result = mockMvc.perform(get(apiPath + "/1").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -144,5 +150,65 @@ public class PlanetControllerTest {
         assertFalse(data.isEmpty());
 
         log.info("Saved result: {}", response);
+    }
+
+    @Tag("supported")
+    @Test
+    public void test_saveAllPlanets() throws Exception {
+        List<Planet> planets = Utils.createPlanetEntities();
+        String jsonRequest = objectMapper.writeValueAsString(planets);
+
+        MvcResult result = mockMvc.perform(post(apiPath + "/bulk")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonRequest))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String responseString = result.getResponse().getContentAsString();
+        JsonNode response = objectMapper.readTree(responseString);
+        String code = response.path("code").asText();
+        String message = response.path("message").asText();
+        JsonNode data = response.path("data");
+
+        assertEquals(ApiConstants.RESPONSE_SUCCESS.get("code"), code);
+        assertEquals(ApiConstants.RESPONSE_SUCCESS.get("message"), message);
+        assertNotNull(data);
+        assertFalse(data.isEmpty());
+
+        log.info("Saved result: {}", response);
+    }
+
+    @Tag("supported")
+    @Test
+    public void test_updatePlanetById() throws Exception {
+        Planet planet = Utils.createPlanetEntity();
+        PlanetDto savedPlanet = planetService.save(planet);
+
+        Planet updatePlanet = new Planet();
+        updatePlanet.setRadius(0.7);
+
+        log.info("Updating planet by ID:\n{}", objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(updatePlanet));
+
+        String jsonRequest = objectMapper.writeValueAsString(updatePlanet);
+
+        MvcResult result = mockMvc.perform(patch(apiPath + "/" + savedPlanet.id())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonRequest))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String responseString = result.getResponse().getContentAsString();
+        JsonNode response = objectMapper.readTree(responseString);
+        String code = response.path("code").asText();
+        String message = response.path("message").asText();
+        JsonNode data = response.path("data");
+
+        assertEquals(ApiConstants.RESPONSE_SUCCESS.get("code"), code);
+        assertEquals(ApiConstants.RESPONSE_SUCCESS.get("message"), message);
+        assertNotNull(data);
+        assertFalse(data.isEmpty());
+        assertEquals(updatePlanet.getRadius(), data.get("radius").asDouble());
+
+        log.info("Updated planet by ID:\n{}", objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response));
     }
 }

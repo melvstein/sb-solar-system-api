@@ -154,7 +154,7 @@ public class PlanetController {
                     updatedPlanet.setSpeed(planet.getSpeed());
                 }
 
-                if (planet.getAtmosphere() != null) {
+                if (planet.getAtmosphere() != null && updatedPlanet.getAtmosphere() != null) {
                     Atmosphere incomingAtmosphere = planet.getAtmosphere();
                     Atmosphere existingAtmosphere = updatedPlanet.getAtmosphere();
 
@@ -179,9 +179,9 @@ public class PlanetController {
                     }
                 }
 
-                if (planet.getMoons() != null) {
+                if (planet.getMoons() != null && updatedPlanet.getMoons() != null && !planet.getMoons().isEmpty() && !updatedPlanet.getMoons().isEmpty() && planet.getMoons().size() == updatedPlanet.getMoons().size()) {
                     List<Moon> incomingMoons = planet.getMoons();
-                    List<Moon> existingMoons = updatedPlanet.getMoons();
+                    List<Moon> existingMoons = new ArrayList<>(updatedPlanet.getMoons());
 
                     incomingMoons.forEach((incomingMoon) -> {
                         existingMoons.forEach((existingMoon) -> {
@@ -206,7 +206,7 @@ public class PlanetController {
                     });
                 }
 
-                if (planet.getRing() != null) {
+                if (planet.getRing() != null && updatedPlanet.getRing() != null) {
                     Ring incomingRing = planet.getRing();
                     Ring existingRing = updatedPlanet.getRing();
 
