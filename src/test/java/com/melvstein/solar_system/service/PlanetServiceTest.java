@@ -1,17 +1,10 @@
 package com.melvstein.solar_system.service;
 
-import com.melvstein.solar_system.dto.AtmosphereDto;
-import com.melvstein.solar_system.dto.MoonDto;
 import com.melvstein.solar_system.dto.PlanetDto;
-import com.melvstein.solar_system.dto.RingDto;
 import com.melvstein.solar_system.mapper.mapstruct.PlanetMapper;
-import com.melvstein.solar_system.model.Atmosphere;
-import com.melvstein.solar_system.model.Moon;
 import com.melvstein.solar_system.model.Planet;
-import com.melvstein.solar_system.model.Ring;
 import com.melvstein.solar_system.repository.PlanetRepository;
 import com.melvstein.solar_system.util.Utils;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
