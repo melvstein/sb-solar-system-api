@@ -164,8 +164,8 @@ class PlanetServiceTest {
     @Test
     public void test_deleteById_shouldDelete_whenRecordExists() {
         // Arrange
-        Planet planet = Utils.createPlanetEntity();
-        PlanetDto planetDto = Utils.createPlanetDto(planet);
+        // Planet planet = Utils.createPlanetEntity();
+        // PlanetDto planetDto = Utils.createPlanetDto(planet);
 
         // Action
         planetService.deleteById(0L);
