@@ -21,7 +21,6 @@ public class PlanetService {
     private final PlanetRepository planetRepository;
     private final PlanetMapper planetMapper;
 
-    @Autowired
     public PlanetService(PlanetRepository planetRepository, PlanetMapper planetMapper) {
         this.planetRepository = planetRepository;
         this.planetMapper = planetMapper;

@@ -13,7 +13,6 @@ public class AtmosphereService {
     private final AtmosphereRepository atmosphereRepository;
     private final AtmosphereMapper atmosphereMapper;
 
-    @Autowired
     public AtmosphereService(AtmosphereRepository atmosphereRepository, AtmosphereMapper atmosphereMapper) {
         this.atmosphereRepository = atmosphereRepository;
         this.atmosphereMapper = atmosphereMapper;
