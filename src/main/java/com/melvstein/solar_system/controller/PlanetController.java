@@ -5,16 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.melvstein.solar_system.constant.ApiConstants;
 import com.melvstein.solar_system.dto.ApiResponse;
 import com.melvstein.solar_system.dto.PlanetDto;
-import com.melvstein.solar_system.model.Atmosphere;
-import com.melvstein.solar_system.model.Moon;
 import com.melvstein.solar_system.model.Planet;
-import com.melvstein.solar_system.model.Ring;
 import com.melvstein.solar_system.service.PlanetService;
 import com.melvstein.solar_system.util.ApiResponseUtils;
 import com.melvstein.solar_system.util.Utils;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -139,112 +135,9 @@ public class PlanetController {
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<PlanetDto>> updatePlanetById(@PathVariable Long id, @RequestBody Planet planet) {
         try {
-            Optional<Planet> planetOptional = planetService.getEntityById(id);
+            PlanetDto result = planetService.updatePlanetById(id, planet);
 
-            if (planetOptional.isPresent()) {
-                Planet updatedPlanet = planetOptional.get();
-
-                if (planet.getRadius() != null) {
-                    updatedPlanet.setRadius(planet.getRadius());
-                }
-
-                if (planet.getDistance() != null) {
-                    updatedPlanet.setDistance(planet.getDistance());
-                }
-
-                if (planet.getSpeed() != null) {
-                    updatedPlanet.setSpeed(planet.getSpeed());
-                }
-
-                if (planet.getAtmosphere() != null && updatedPlanet.getAtmosphere() != null) {
-                    Atmosphere incomingAtmosphere = planet.getAtmosphere();
-                    Atmosphere existingAtmosphere = updatedPlanet.getAtmosphere();
-
-                    if (incomingAtmosphere.getRadius() != null) {
-                        existingAtmosphere.setRadius(incomingAtmosphere.getRadius());
-                    }
-
-                    if (incomingAtmosphere.getColor() != null) {
-                        existingAtmosphere.setColor(incomingAtmosphere.getColor());
-                    }
-
-                    if (incomingAtmosphere.getOpacity() != null) {
-                        existingAtmosphere.setOpacity(incomingAtmosphere.getOpacity());
-                    }
-
-                    if (incomingAtmosphere.getEmissive() != null) {
-                        existingAtmosphere.setEmissive(incomingAtmosphere.getEmissive());
-                    }
-
-                    if (incomingAtmosphere.getEmissiveIntensity() != null) {
-                        existingAtmosphere.setEmissiveIntensity(incomingAtmosphere.getEmissiveIntensity());
-                    }
-                }
-
-                if (planet.getMoons() != null && updatedPlanet.getMoons() != null && !planet.getMoons().isEmpty() && !updatedPlanet.getMoons().isEmpty() && planet.getMoons().size() == updatedPlanet.getMoons().size()) {
-                    List<Moon> incomingMoons = planet.getMoons();
-                    List<Moon> existingMoons = new ArrayList<>(updatedPlanet.getMoons());
-                    updatedPlanet.setMoons(existingMoons);
-
-                    incomingMoons.forEach((incomingMoon) -> {
-                        existingMoons.forEach((existingMoon) -> {
-                            if (incomingMoon.getId().equals(existingMoon.getId())) {
-                                if (incomingMoon.getName() != null) {
-                                    existingMoon.setName(incomingMoon.getName());
-                                }
-
-                                if (incomingMoon.getRadius() != null) {
-                                    existingMoon.setRadius(incomingMoon.getRadius());
-                                }
-
-                                if (incomingMoon.getDistance() != null) {
-                                    existingMoon.setDistance(incomingMoon.getDistance());
-                                }
-
-                                if (incomingMoon.getSpeed() != null) {
-                                    existingMoon.setSpeed(incomingMoon.getSpeed());
-                                }
-                            }
-                        });
-                    });
-                }
-
-                if (planet.getRing() != null && updatedPlanet.getRing() != null) {
-                    Ring incomingRing = planet.getRing();
-                    Ring existingRing = updatedPlanet.getRing();
-
-                    if (incomingRing.getColor() != null) {
-                        existingRing.setColor(incomingRing.getColor());
-                    }
-
-                    if (incomingRing.getInnerRadius() != null) {
-                        existingRing.setInnerRadius(incomingRing.getInnerRadius());
-                    }
-
-                    if (incomingRing.getOuterRadius() != null) {
-                        existingRing.setOuterRadius(incomingRing.getOuterRadius());
-                    }
-
-                    if (incomingRing.getTilt() != null) {
-                        existingRing.setTilt(incomingRing.getTilt());
-                    }
-
-                    if (incomingRing.getOpacity() != null) {
-                        existingRing.setOpacity(incomingRing.getOpacity());
-                    }
-                }
-
-                log.info("{} - id={}, request={}, updatedPlanet={}", Utils.currentMethod(), id, objectMapper.writeValueAsString(planet), objectMapper.writeValueAsString(updatedPlanet));
-
-                PlanetDto result = planetService.save(updatedPlanet);
-
-                return ResponseEntity.ok(ApiResponseUtils.success(result));
-            } else {
-                return ResponseEntity
-                        .status(HttpStatus.NOT_FOUND)
-                        .body(ApiResponseUtils.error(ApiConstants.RESPONSE_ERROR.get("code"), "Planet not found", null));
-            }
-
+            return ResponseEntity.ok(ApiResponseUtils.success(result));
         } catch (Exception e) {
             log.error(Utils.currentMethod(), "error", e);
 

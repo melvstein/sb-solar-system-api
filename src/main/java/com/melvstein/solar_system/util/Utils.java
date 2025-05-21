@@ -10,6 +10,8 @@ import com.melvstein.solar_system.model.Planet;
 import com.melvstein.solar_system.model.Ring;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Utils {
     public static String currentMethod() {
@@ -185,5 +187,16 @@ public class Utils {
         ring2.setPlanet(planet2);
 
         return List.of(planet1, planet2);
+    }
+
+    public static String generateCacheKeyFromParams(Map<String, Object> params) {
+        if (params == null || params.isEmpty()) {
+            return "noParams";
+        }
+
+        return params.entrySet().stream()
+            .sorted(Map.Entry.comparingByKey())
+            .map(e -> e.getKey() + "=" + e.getValue())
+            .collect(Collectors.joining("-"));
     }
 }

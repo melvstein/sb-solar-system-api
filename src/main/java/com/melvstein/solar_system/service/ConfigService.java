@@ -27,4 +27,9 @@ public class ConfigService {
         String appName = environment.getProperty("spring.application.name");
         return "App name: " + appName;
     }
+
+    public String getConfigEnv() {
+        String env = environment.getProperty("config-env");
+        return "Config Env: " + env;
+    }
 }

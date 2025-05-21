@@ -7,6 +7,7 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.Environment;
 
+@EnableCaching
 @SpringBootApplication
 public class SolarSystemApplication {
 	public Environment environment;
@@ -18,6 +19,7 @@ public class SolarSystemApplication {
 		System.out.println(configService.getOsName());
 		System.out.println(configService.getJavaVersion());
 		System.out.println(configService.getAppName());
+        System.out.println(configService.getConfigEnv());
 	}
 
 }
