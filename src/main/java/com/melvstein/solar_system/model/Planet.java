@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.List;
 
 @Data
@@ -21,7 +21,7 @@ import java.util.List;
                 )
         }
 )
-public class Planet {
+public class Planet implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(updatable = false)
@@ -56,7 +56,7 @@ public class Planet {
             orphanRemoval = true
     )
     @JsonManagedReference
-    private List<Moon> moons = new ArrayList<>();
+    private List<Moon> moons;
 
     @OneToOne(
             mappedBy = "planet",

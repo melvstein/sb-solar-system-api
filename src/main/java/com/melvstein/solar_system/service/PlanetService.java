@@ -14,6 +14,8 @@ import com.melvstein.solar_system.util.Utils;
 import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -33,14 +35,17 @@ public class PlanetService {
     private final PlanetRepository planetRepository;
     private final PlanetMapper planetMapper;
     private final ObjectMapper objectMapper;
+    private final CacheManager cacheManager;
+    private static final String CACHE_NAME = "planetsCache";
 
-    public PlanetService(PlanetRepository planetRepository, PlanetMapper planetMapper, ObjectMapper objectMapper) {
+    public PlanetService(PlanetRepository planetRepository, PlanetMapper planetMapper, ObjectMapper objectMapper, CacheManager cacheManager) {
         this.planetRepository = planetRepository;
         this.planetMapper = planetMapper;
         this.objectMapper = objectMapper;
+        this.cacheManager = cacheManager;
     }
 
-    @Cacheable(value = "planetsCache", key = "'getallPlanets-' + T(com.melvstein.solar_system.util.Utils).generateCacheKeyFromParams(#params)")
+    @Cacheable(value = CACHE_NAME, key = "'getallPlanets-' + T(com.melvstein.solar_system.util.Utils).generateCacheKeyFromParams(#params)")
     public List<PlanetDto> getAll(@Nullable Map<String, Object> params) {
         Specification<Planet> spec = Specification.where(null);
 
@@ -74,38 +79,65 @@ public class PlanetService {
         return planetMapper.toDtos(planets);
     }
 
+    //@Cacheable(value = CACHE_NAME, key = "'getAllWithPageable-' + T(com.melvstein.solar_system.util.Utils).generateCacheKeyFromParams(#params) + '-page:' + #pageable.pageNumber + '-size:' + #pageable.pageSize")
     public Page<PlanetDto> getAllWithPageable(@Nullable Map<String, Object> params, Pageable pageable) {
-        Specification<Planet> spec = Specification.where(null);
+        try {
+            String cacheKey = "getAllWithPageable-" + Utils.generateCacheKeyFromParams(params);
+            Cache cache = cacheManager.getCache(CACHE_NAME);
 
-        if (params != null) {
-            if (params.containsKey("hasAtmosphere")) {
-                spec = spec.and(PlanetSpecification.hasAtmosphere());
+            log.info("cacheKey={}", cacheKey);
+
+            if (cache != null) {
+                Page<?> cachedPageRaw = cache.get(cacheKey, Page.class);
+                if (cachedPageRaw != null) {
+                    @SuppressWarnings("unchecked")
+                    Page<PlanetDto> cachedPage = (Page<PlanetDto>) cachedPageRaw;
+                    System.out.println("Cache hit!");
+                    return cachedPage;
+                }
             }
 
-            if (params.containsKey("hasNoAtmosphere")) {
-                spec = spec.and(PlanetSpecification.hasNoAtmosphere());
+            Specification<Planet> spec = Specification.where(null);
+
+            if (params != null) {
+                if (params.containsKey("hasAtmosphere") && params.containsKey("hasNoAtmosphere")) {
+                    spec = spec.and(PlanetSpecification.hasAtmosphere().or(PlanetSpecification.hasNoAtmosphere()));
+                } else if (params.containsKey("hasAtmosphere") && !params.containsKey("hasNoAtmosphere")) {
+                    spec = spec.and(PlanetSpecification.hasAtmosphere());
+                } else if (!params.containsKey("hasAtmosphere") && params.containsKey("hasNoAtmosphere")) {
+                    spec = spec.and(PlanetSpecification.hasNoAtmosphere());
+                }
+
+                if (params.containsKey("hasMoon") && params.containsKey("hasNoMoon")) {
+                    spec = spec.and(PlanetSpecification.hasMoon().or(PlanetSpecification.hasNoMoon()));
+                } else if (params.containsKey("hasMoon") && !params.containsKey("hasNoMoon")) {
+                    spec = spec.and(PlanetSpecification.hasMoon());
+                } else if (!params.containsKey("hasMoon") && params.containsKey("hasNoMoon")) {
+                    spec = spec.and(PlanetSpecification.hasNoMoon());
+                }
+
+                if (params.containsKey("hasRing") && params.containsKey("hasNoRing")) {
+                    spec = spec.and(PlanetSpecification.hasRing().or(PlanetSpecification.hasNoRing()));
+                } else if (params.containsKey("hasRing") && !params.containsKey("hasNoRing")) {
+                    spec = spec.and(PlanetSpecification.hasRing());
+                } else if (!params.containsKey("hasRing") && params.containsKey("hasNoRing")) {
+                    spec = spec.and(PlanetSpecification.hasNoRing());
+                }
             }
 
-            if (params.containsKey("hasMoon")) {
-                spec = spec.and(PlanetSpecification.hasMoon());
+            System.out.println("Cache miss, fetching from DB...");
+            Page<Planet> planets = planetRepository.findAll(spec, pageable);
+            Page<PlanetDto> dtoPage = planets.map(planetMapper::toDto);
+
+            if (cache != null) {
+                cache.put(cacheKey, planets);
             }
 
-            if (params.containsKey("hasNoMoon")) {
-                spec = spec.and(PlanetSpecification.hasNoMoon());
-            }
-
-            if (params.containsKey("hasRing")) {
-                spec = spec.and(PlanetSpecification.hasRing());
-            }
-
-            if (params.containsKey("hasNoRing")) {
-                spec = spec.and(PlanetSpecification.hasNoRing());
-            }
+            return dtoPage;
+        } catch (Exception e) {
+            log.error("Error updating planet: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to update planet", e);
         }
-
-        Page<Planet> planets = planetRepository.findAll(spec, pageable);
-
-        return planets.map(planetMapper::toDto);
     }
 
     public Optional<PlanetDto> getById(Long id) {
@@ -116,14 +148,14 @@ public class PlanetService {
         return planetRepository.findById(id);
     }
 
-    @CacheEvict(value = "planetsCache", allEntries = true)
+    @CacheEvict(value = CACHE_NAME, allEntries = true)
     public PlanetDto save(Planet planet) {
         Planet newPlanet = planetRepository.save(planet);
 
         return planetMapper.toDto(newPlanet);
     }
 
-    @CacheEvict(value = "planetsCache", allEntries = true)
+    @CacheEvict(value = CACHE_NAME, allEntries = true)
     public List<PlanetDto> saveAll(List<Planet> planets) {
        //List<Planet> planets = planetMapper.toEntities(planetDtos);
         List<Planet> newPlanets = planetRepository.saveAll(planets);
@@ -144,6 +176,7 @@ public class PlanetService {
         return planetRepository.existsById(id);
     }
 
+    @CacheEvict(value = CACHE_NAME, allEntries = true)
     public PlanetDto updatePlanetById(Long id, Planet planet) {
         try {
             Optional<Planet> planetOptional = getEntityById(id);

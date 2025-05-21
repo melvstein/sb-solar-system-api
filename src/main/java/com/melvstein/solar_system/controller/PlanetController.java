@@ -35,7 +35,10 @@ public class PlanetController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<PlanetDto>>> getPlanets(@RequestParam(required = false) Map<String, Object> params, @PageableDefault(size = 5) Pageable pageable) {
+    public ResponseEntity<ApiResponse<Page<PlanetDto>>> getPlanets(
+            @RequestParam(required = false) Map<String, Object> params,
+            @PageableDefault(size = 5) Pageable pageable
+        ) {
         try {
              Page<PlanetDto> planets = planetService.getAllWithPageable(params, pageable);
 

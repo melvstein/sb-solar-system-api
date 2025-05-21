@@ -1,5 +1,7 @@
 package com.melvstein.solar_system.model;
 
+import java.io.Serializable;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -19,7 +21,7 @@ import lombok.*;
         }
 )
 @ToString(exclude = "planet")
-public class Moon {
+public class Moon implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(updatable = false)
