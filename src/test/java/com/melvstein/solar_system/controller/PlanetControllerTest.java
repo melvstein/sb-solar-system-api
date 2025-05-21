@@ -183,9 +183,17 @@ public class PlanetControllerTest {
     public void test_updatePlanetById() throws Exception {
         Planet planet = Utils.createPlanetEntity();
         PlanetDto savedPlanet = planetService.save(planet);
+        Planet planetEntity = planetMapper.toEntity(savedPlanet);
 
         Planet updatePlanet = new Planet();
+        updatePlanet.setId(planetEntity.getId());
+        updatePlanet.setName(planetEntity.getName());
         updatePlanet.setRadius(0.7);
+        updatePlanet.setDistance(planetEntity.getDistance());
+        updatePlanet.setSpeed(planetEntity.getSpeed());
+        updatePlanet.setAtmosphere(planetEntity.getAtmosphere());
+        updatePlanet.setMoons(planetEntity.getMoons());
+        updatePlanet.setRing(planetEntity.getRing());
 
         log.info("Updating planet by ID:\n{}", objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(updatePlanet));
 

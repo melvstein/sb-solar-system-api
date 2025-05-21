@@ -233,7 +233,9 @@ public class PlanetController {
 
                 log.info("{} - id={}, request={}, updatedPlanet={}", Utils.currentMethod(), id, objectMapper.writeValueAsString(planet), objectMapper.writeValueAsString(updatedPlanet));
 
-                return ResponseEntity.ok(ApiResponseUtils.success(planetService.save(updatedPlanet)));
+                PlanetDto result = planetService.save(updatedPlanet);
+
+                return ResponseEntity.ok(ApiResponseUtils.success(result));
             } else {
                 return ResponseEntity
                         .status(HttpStatus.NOT_FOUND)
