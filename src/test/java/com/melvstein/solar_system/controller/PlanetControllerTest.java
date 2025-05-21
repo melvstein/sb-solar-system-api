@@ -6,10 +6,8 @@ import com.melvstein.solar_system.constant.ApiConstants;
 import com.melvstein.solar_system.dto.PlanetDto;
 import com.melvstein.solar_system.mapper.mapstruct.PlanetMapper;
 import com.melvstein.solar_system.model.Planet;
-import com.melvstein.solar_system.repository.PlanetRepository;
 import com.melvstein.solar_system.service.PlanetService;
 import com.melvstein.solar_system.util.Utils;
-import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,15 +49,11 @@ public class PlanetControllerTest {
     @Autowired
     private PlanetMapper planetMapper;
 
-    @Autowired
-    private EntityManager entityManager;
-
-    private PlanetDto planetDto;
     private static final String apiPath = "/api/v1/planets";
 
     @BeforeEach
     public void setUp() {
-        List<Planet> planets = Utils.createPlanetEntities();
+        // List<Planet> planets = Utils.createPlanetEntities();
         // List<Planet> result = planetRepository.saveAll(planets);
         // System.out.println("Created Planets:" + result);
 
@@ -224,7 +218,7 @@ public class PlanetControllerTest {
         Planet planet = Utils.createPlanetEntity();
         PlanetDto savedPlanet = planetService.save(planet);
 
-        MvcResult result = mockMvc.perform(delete(apiPath + "/" + savedPlanet.id()))
+        mockMvc.perform(delete(apiPath + "/" + savedPlanet.id()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(ApiConstants.RESPONSE_SUCCESS.get("code")))
                 .andReturn();
