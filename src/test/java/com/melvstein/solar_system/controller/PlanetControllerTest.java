@@ -25,7 +25,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -45,9 +44,6 @@ public class PlanetControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    @Autowired
-    private PlanetRepository planetRepository;
 
     @Autowired
     private PlanetService planetService;
@@ -123,6 +119,7 @@ public class PlanetControllerTest {
         assertEquals(ApiConstants.RESPONSE_SUCCESS.get("message"), message);
         assertNotNull(data);
         assertFalse(data.isEmpty());
+        assertEquals(savedPlanet.name(), name);
 
         log.info("Get planet by ID: {}", response);
     }
