@@ -30,6 +30,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Transactional
@@ -104,10 +105,10 @@ public class PlanetControllerTest {
     @Tag("supported")
     @Test
     public void test_getPlanetById() throws Exception {
-        List<Planet> planets = Utils.createPlanetEntities();
-        planetService.saveAll(planets);
+        Planet planet = Utils.createPlanetEntity();
+        PlanetDto savedPlanet = planetService.save(planet);
 
-        MvcResult result = mockMvc.perform(get(apiPath + "/1").contentType(MediaType.APPLICATION_JSON))
+        MvcResult result = mockMvc.perform(get(apiPath + "/" + savedPlanet.id()).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -218,5 +219,17 @@ public class PlanetControllerTest {
         assertEquals(updatePlanet.getRadius(), data.get("radius").asDouble());
 
         log.info("Updated planet by ID:\n{}", objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response));
+    }
+
+    @Tag("supported")
+    @Test
+    public void test_deletePlanetById() throws Exception {
+        Planet planet = Utils.createPlanetEntity();
+        PlanetDto savedPlanet = planetService.save(planet);
+
+        MvcResult result = mockMvc.perform(delete(apiPath + "/" + savedPlanet.id()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(ApiConstants.RESPONSE_SUCCESS.get("code")))
+                .andReturn();
     }
 }
