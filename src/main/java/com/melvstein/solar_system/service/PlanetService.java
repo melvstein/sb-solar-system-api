@@ -16,8 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -45,7 +43,6 @@ public class PlanetService {
         this.cacheManager = cacheManager;
     }
 
-    @Cacheable(value = CACHE_NAME, key = "'getallPlanets-' + T(com.melvstein.solar_system.util.Utils).generateCacheKeyFromParams(#params)")
     public List<PlanetDto> getAll(@Nullable Map<String, Object> params) {
         Specification<Planet> spec = Specification.where(null);
 
@@ -85,14 +82,14 @@ public class PlanetService {
             String cacheKey = "getAllWithPageable-" + Utils.generateCacheKeyFromParams(params);
             Cache cache = cacheManager.getCache(CACHE_NAME);
 
-            log.info("cacheKey={}", cacheKey);
+            log.info("{} - cacheName={} cacheKey={}", Utils.currentMethod(), CACHE_NAME, cacheKey);
 
             if (cache != null) {
                 Page<?> cachedPageRaw = cache.get(cacheKey, Page.class);
                 if (cachedPageRaw != null) {
                     @SuppressWarnings("unchecked")
                     Page<PlanetDto> cachedPage = (Page<PlanetDto>) cachedPageRaw;
-                    System.out.println("Cache hit!");
+                    log.info("{} - Cache hit!... cacheName={} cacheKey={}", Utils.currentMethod(), CACHE_NAME, cacheKey);
                     return cachedPage;
                 }
             }
@@ -125,7 +122,7 @@ public class PlanetService {
                 }
             }
 
-            System.out.println("Cache miss, fetching from DB...");
+            log.info("{} - Cache miss, fetching from DB... cacheName={} cacheKey={}", Utils.currentMethod(), CACHE_NAME, cacheKey);
             Page<Planet> planets = planetRepository.findAll(spec, pageable);
             Page<PlanetDto> dtoPage = planets.map(planetMapper::toDto);
 
@@ -135,7 +132,7 @@ public class PlanetService {
 
             return dtoPage;
         } catch (Exception e) {
-            log.error("Error updating planet: {}", e.getMessage(), e);
+            log.error("{} - Error updating planet: {}", Utils.currentMethod(), e.getMessage(), e);
             throw new RuntimeException("Failed to update planet", e);
         }
     }
@@ -148,15 +145,29 @@ public class PlanetService {
         return planetRepository.findById(id);
     }
 
-    @CacheEvict(value = CACHE_NAME, allEntries = true)
+    //@CacheEvict(value = CACHE_NAME, allEntries = true)
     public PlanetDto save(Planet planet) {
+        Cache cache = cacheManager.getCache(CACHE_NAME);
+
+        if (cache != null) {
+            log.info("{} - cache cleared cacheName={}", Utils.currentMethod(), CACHE_NAME);
+            cache.clear();
+        }
+
         Planet newPlanet = planetRepository.save(planet);
 
         return planetMapper.toDto(newPlanet);
     }
 
-    @CacheEvict(value = CACHE_NAME, allEntries = true)
+    //@CacheEvict(value = CACHE_NAME, allEntries = true)
     public List<PlanetDto> saveAll(List<Planet> planets) {
+        Cache cache = cacheManager.getCache(CACHE_NAME);
+
+        if (cache != null) {
+            log.info("{} - cache cleared cacheName={}", Utils.currentMethod(), CACHE_NAME);
+            cache.clear();
+        }
+
        //List<Planet> planets = planetMapper.toEntities(planetDtos);
         List<Planet> newPlanets = planetRepository.saveAll(planets);
 
@@ -176,8 +187,15 @@ public class PlanetService {
         return planetRepository.existsById(id);
     }
 
-    @CacheEvict(value = CACHE_NAME, allEntries = true)
+    //@CacheEvict(value = CACHE_NAME, allEntries = true)
     public PlanetDto updatePlanetById(Long id, Planet planet) {
+        Cache cache = cacheManager.getCache(CACHE_NAME);
+
+        if (cache != null) {
+            log.info("{} - cache cleared cacheName={}", Utils.currentMethod(), CACHE_NAME);
+            cache.clear();
+        }
+
         try {
             Optional<Planet> planetOptional = getEntityById(id);
 
@@ -283,7 +301,7 @@ public class PlanetService {
                 return null;
             }
         } catch (Exception e) {
-            log.error("Error updating planet: {}", e.getMessage(), e);
+            log.error("{} - Error updating planet: {}", Utils.currentMethod(), e.getMessage(), e);
             throw new RuntimeException("Failed to update planet", e);
         }
     }

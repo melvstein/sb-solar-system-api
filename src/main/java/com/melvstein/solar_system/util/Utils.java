@@ -13,7 +13,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.Cache;
+import org.springframework.cache.Cache.ValueWrapper;
+import org.springframework.cache.CacheManager;
+
 public class Utils {
+    private final CacheManager cacheManager;
+
+    public Utils(CacheManager cacheManager) {
+        this.cacheManager = cacheManager;
+    }
+
     public static String currentMethod() {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         // [0] is getStackTrace, [1] is currentMethod, [2] is the caller
@@ -198,5 +208,35 @@ public class Utils {
             .sorted(Map.Entry.comparingByKey())
             .map(e -> e.getKey() + "=" + e.getValue())
             .collect(Collectors.joining("-"));
+    }
+
+    public boolean isCacheExists(String cacheName, Object cacheKey) {
+        Cache cache = cacheManager.getCache(cacheName);
+
+        if (cache != null) {
+            if (cacheKey != null) {
+                ValueWrapper cachedValue =  cache.get(cacheKey);
+                return cachedValue != null;
+            }
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isCacheExists(String cacheName) {
+        return isCacheExists(cacheName, null);
+    }
+
+    public Object getCache(String cacheName, Object cacheKey) {
+        Cache cache = cacheManager.getCache(cacheName);
+
+        if (cache != null) {
+            ValueWrapper cachedValue = cache.get(cacheKey);
+            return cachedValue != null ? cachedValue.get() : null;
+        } else {
+            return null;
+        }
     }
 }
