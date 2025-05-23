@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -35,6 +36,7 @@ public class PlanetController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<ApiResponse<Page<PlanetDto>>> getPlanets(
             @RequestParam(required = false) Map<String, Object> params,
             @PageableDefault(size = 5) Pageable pageable
@@ -57,6 +59,7 @@ public class PlanetController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<ApiResponse<PlanetDto>> getPlanetById(@PathVariable Long id) {
         try {
             Optional<PlanetDto> planet = planetService.getById(id);
@@ -88,6 +91,7 @@ public class PlanetController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<PlanetDto>> savePlanet(@RequestBody Planet planet) {
         try {
             PlanetDto existingPlanet = planetService.getByName(planet.getName());
@@ -115,6 +119,7 @@ public class PlanetController {
     }
 
     @PostMapping("/bulk")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Map<String, Object>>> saveAllPlanets (@RequestBody List<Planet> planets) {
         try {
             List<PlanetDto> existingPlanets = planetService.getAll(null);
@@ -136,6 +141,7 @@ public class PlanetController {
     }
 
     @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<PlanetDto>> updatePlanetById(@PathVariable Long id, @RequestBody Planet planet) {
         try {
             PlanetDto result = planetService.updatePlanetById(id, planet);
@@ -151,6 +157,7 @@ public class PlanetController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deletePlanetById(@PathVariable Long id) {
         try {
             boolean exists = planetService.existsById(id);
