@@ -2,8 +2,11 @@ package com.melvstein.solar_system.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -43,21 +46,22 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/user/**").hasAnyRole("ADMIN", "USER")
-                .anyRequest().authenticated()
-            ).formLogin(formLogin -> formLogin
-                .defaultSuccessUrl(HOME_PAGE)
-            )
-            .logout(logout -> logout
-                .logoutSuccessUrl(LOGIN_PAGE)
-            )
-            .anonymous(anonymous -> anonymous
-                .disable()
-            );
-
-        return http.build();
+        return http
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(authorize -> authorize
+                    .requestMatchers("/admin/**").hasRole("ADMIN")
+                    .requestMatchers("/user/**").hasAnyRole("ADMIN", "USER")
+                    .anyRequest().authenticated()
+                )
+                .httpBasic(Customizer.withDefaults())
+                /*.formLogin(formLogin -> formLogin
+                        .defaultSuccessUrl(HOME_PAGE)
+                )
+                .logout(logout -> logout
+                    .logoutSuccessUrl(LOGIN_PAGE)
+                )
+                .anonymous(AbstractHttpConfigurer::disable)*/
+                .build();
     }
 }

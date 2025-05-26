@@ -9,8 +9,10 @@ import com.melvstein.solar_system.model.Planet;
 import com.melvstein.solar_system.service.PlanetService;
 import com.melvstein.solar_system.util.ApiResponseUtils;
 import com.melvstein.solar_system.util.Utils;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -29,6 +31,9 @@ public class PlanetController {
 
     private final PlanetService planetService;
     private final ObjectMapper objectMapper;
+
+    @Value("${jwt.secret}")
+    private String jwtSecret;
 
     public PlanetController(PlanetService planetService, ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;

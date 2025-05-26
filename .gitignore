@@ -37,3 +37,5 @@ out/
 .vscode/
 logs/
 src/main/resources/application.properties
+
+.env
