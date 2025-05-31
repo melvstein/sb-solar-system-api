@@ -2,6 +2,7 @@ package com.melvstein.solar_system.config;
 
 import com.melvstein.solar_system.service.MyUserDetailsService;
 import com.melvstein.solar_system.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,15 +24,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
     private static final String HOME_PAGE = "/api/v1/planets";
     private static final String LOGIN_PAGE = "/login";
 
-    @Autowired
-    private MyUserDetailsService myUserDetailsService;
-
-    @Autowired
-    private JwtFilter jwtFilter;
+    private final MyUserDetailsService myUserDetailsService;
+    private final JwtFilter jwtFilter;
+    private final JwtAuthenticationEntryPoint authenticationEntryPoint;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -75,6 +75,9 @@ public class SecurityConfig {
                 )
                 .authenticationProvider(daoAuthenticationProvider())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                )
                 /*.formLogin(formLogin -> formLogin
                         .defaultSuccessUrl(HOME_PAGE)
                 )
