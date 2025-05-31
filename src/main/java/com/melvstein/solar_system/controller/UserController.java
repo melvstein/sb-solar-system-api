@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,6 +30,7 @@ public class UserController extends BaseController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('admin, 'user')")
     public ResponseEntity<ApiResponse<List<UserDto>>> getUsers() {
         try {
             List<UserDto> users = userService.getAll();
@@ -42,6 +44,32 @@ public class UserController extends BaseController {
             return ResponseEntity.ok(ApiResponseUtils.success(users));
         } catch (Exception e) {
             log.error("{} - error={}", Utils.currentMethod(), e.getMessage());
+
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponseUtils.error());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('admin')")
+    public ResponseEntity<ApiResponse<Void>> deleteById(@PathVariable Long id) {
+        try {
+            boolean exists = userService.existsById(id);
+
+            if (!exists) {
+                return ResponseEntity
+                        .status(HttpStatus.NOT_FOUND)
+                        .body(ApiResponseUtils.error(ApiConstants.RESPONSE_ERROR.get("code"), "User not found", null));
+            }
+
+            log.info("{} - id={}", Utils.currentMethod(), id);
+
+            userService.deleteById(id);
+
+            return ResponseEntity.ok(ApiResponseUtils.success(ApiConstants.RESPONSE_SUCCESS.get("code"), "Deleted Successfully", null));
+        } catch (Exception e) {
+            log.error(Utils.currentMethod(), "error", e);
 
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)

@@ -4,6 +4,7 @@ import com.melvstein.solar_system.dto.UserDto;
 import com.melvstein.solar_system.mapper.mapstruct.UserMapper;
 import com.melvstein.solar_system.model.User;
 import com.melvstein.solar_system.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -14,17 +15,12 @@ import java.util.List;
 import java.util.Locale;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
     private final AuthenticationManager authenticationManager;
-
-    public UserService(UserRepository userRepository, UserMapper userMapper, AuthenticationManager authenticationManager) {
-        this.userRepository = userRepository;
-        this.userMapper = userMapper;
-        this.authenticationManager = authenticationManager;
-    }
 
     public List<UserDto> getAll() {
         List<User> users = userRepository.findAll();
@@ -45,5 +41,13 @@ public class UserService {
     public boolean isAuthenticated(UserDto user) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.username(), user.password()));
         return authentication.isAuthenticated();
+    }
+
+    public boolean existsById(Long id) {
+        return userRepository.existsById(id);
+    }
+
+    public void deleteById(Long id) {
+        userRepository.deleteById(id);
     }
 }
