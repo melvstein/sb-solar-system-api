@@ -41,7 +41,7 @@ public class PlanetController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyAuthority('admin', 'user')")
     public ResponseEntity<ApiResponse<Page<PlanetDto>>> getPlanets(
             @RequestParam(required = false) Map<String, Object> params,
             @PageableDefault(size = 5) Pageable pageable
@@ -64,7 +64,7 @@ public class PlanetController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyAuthority('admin', 'user')")
     public ResponseEntity<ApiResponse<PlanetDto>> getPlanetById(@PathVariable Long id) {
         try {
             Optional<PlanetDto> planet = planetService.getById(id);
@@ -96,7 +96,7 @@ public class PlanetController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('admin')")
     public ResponseEntity<ApiResponse<PlanetDto>> savePlanet(@RequestBody Planet planet) {
         try {
             PlanetDto existingPlanet = planetService.getByName(planet.getName());
@@ -124,7 +124,7 @@ public class PlanetController {
     }
 
     @PostMapping("/bulk")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('admin')")
     public ResponseEntity<ApiResponse<Map<String, Object>>> saveAllPlanets (@RequestBody List<Planet> planets) {
         try {
             List<PlanetDto> existingPlanets = planetService.getAll(null);
@@ -146,7 +146,7 @@ public class PlanetController {
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('admin')")
     public ResponseEntity<ApiResponse<PlanetDto>> updatePlanetById(@PathVariable Long id, @RequestBody Planet planet) {
         try {
             PlanetDto result = planetService.updatePlanetById(id, planet);
@@ -162,7 +162,7 @@ public class PlanetController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('admin')")
     public ResponseEntity<ApiResponse<Void>> deletePlanetById(@PathVariable Long id) {
         try {
             boolean exists = planetService.existsById(id);
