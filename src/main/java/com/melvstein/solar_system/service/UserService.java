@@ -11,6 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class UserService {
@@ -32,7 +33,10 @@ public class UserService {
 
     public UserDto register(UserDto user) {
         User toRegisterUser = userMapper.toEntity(user);
+
+        toRegisterUser.setRole(toRegisterUser.getRole().toLowerCase(Locale.ROOT));
         toRegisterUser.setPassword(encoder.encode(toRegisterUser.getPassword()));
+
         User registeredUser = userRepository.save(toRegisterUser);
 
         return userMapper.toDto(registeredUser);
