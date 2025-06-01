@@ -7,8 +7,8 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.Environment;
 
-@EnableCaching
 @SpringBootApplication
+@EnableCaching
 public class SolarSystemApplication {
 	public Environment environment;
 

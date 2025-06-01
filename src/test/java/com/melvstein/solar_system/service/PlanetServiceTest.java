@@ -12,6 +12,7 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -31,6 +32,9 @@ class PlanetServiceTest {
 
     @Mock
     private PlanetMapper planetMapper;
+
+    @Mock
+    private CacheManager cacheManager;
 
     @InjectMocks
     private PlanetService planetService;

@@ -4,9 +4,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.melvstein.solar_system.constant.ApiConstants;
 import com.melvstein.solar_system.dto.PlanetDto;
+import com.melvstein.solar_system.dto.UserDto;
 import com.melvstein.solar_system.mapper.mapstruct.PlanetMapper;
+import com.melvstein.solar_system.mapper.mapstruct.UserMapper;
 import com.melvstein.solar_system.model.Planet;
+import com.melvstein.solar_system.model.User;
 import com.melvstein.solar_system.service.PlanetService;
+import com.melvstein.solar_system.service.UserService;
 import com.melvstein.solar_system.util.Utils;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
@@ -23,17 +27,19 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@SpringBootTest
 @Transactional
 @ActiveProfiles("test-h2")
 @AutoConfigureMockMvc
-@SpringBootTest
 public class PlanetControllerTest {
 
     private static final Logger log = LoggerFactory.getLogger(PlanetControllerTest.class);
@@ -49,16 +55,49 @@ public class PlanetControllerTest {
     @Autowired
     private PlanetMapper planetMapper;
 
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private UserMapper userMapper;
+
     private static final String apiPath = "/api/v1/planets";
 
+    private String jwtToken;
+
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws Exception {
         // List<Planet> planets = Utils.createPlanetEntities();
         // List<Planet> result = planetRepository.saveAll(planets);
         // System.out.println("Created Planets:" + result);
 
         //entityManager.flush();
         //entityManager.clear();
+
+        User user = User.builder()
+                .role("admin")
+                .username("test")
+                .password("test123")
+                .build();
+
+        userService.register(userMapper.toDto(user));
+
+        Map<String, String> requestLogin = new HashMap<>();
+        requestLogin.put("username", user.getUsername());
+        requestLogin.put("password", user.getPassword());
+
+        String jsonRequest = objectMapper.writeValueAsString(requestLogin);
+
+        // Login user to get JWT token
+        MvcResult result = mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonRequest))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String responseString = result.getResponse().getContentAsString();
+        JsonNode response = objectMapper.readTree(responseString);
+        jwtToken = response.path("data").path("jwtToken").asText();
     }
 
     @AfterEach
@@ -73,6 +112,7 @@ public class PlanetControllerTest {
         planetService.saveAll(planets);
 
         MvcResult result = mockMvc.perform(get(apiPath)
+                        .header("Authorization", "Bearer " + jwtToken)
                         .contentType(MediaType.APPLICATION_JSON))
                         .andExpect(status().isOk())
                         .andReturn();
@@ -98,7 +138,9 @@ public class PlanetControllerTest {
         Planet planet = Utils.createPlanetEntity();
         PlanetDto savedPlanet = planetService.save(planet);
 
-        MvcResult result = mockMvc.perform(get(apiPath + "/" + savedPlanet.id()).contentType(MediaType.APPLICATION_JSON))
+        MvcResult result = mockMvc.perform(get(apiPath + "/" + savedPlanet.id())
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -125,8 +167,9 @@ public class PlanetControllerTest {
         String jsonRequest = objectMapper.writeValueAsString(planet);
 
         MvcResult result = mockMvc.perform(post(apiPath)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonRequest))
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonRequest))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -151,8 +194,9 @@ public class PlanetControllerTest {
         String jsonRequest = objectMapper.writeValueAsString(planets);
 
         MvcResult result = mockMvc.perform(post(apiPath + "/bulk")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonRequest))
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonRequest))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -192,6 +236,7 @@ public class PlanetControllerTest {
         String jsonRequest = objectMapper.writeValueAsString(updatePlanet);
 
         MvcResult result = mockMvc.perform(patch(apiPath + "/" + savedPlanet.id())
+                        .header("Authorization", "Bearer " + jwtToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequest))
                 .andExpect(status().isOk())
@@ -218,7 +263,8 @@ public class PlanetControllerTest {
         Planet planet = Utils.createPlanetEntity();
         PlanetDto savedPlanet = planetService.save(planet);
 
-        mockMvc.perform(delete(apiPath + "/" + savedPlanet.id()))
+        mockMvc.perform(delete(apiPath + "/" + savedPlanet.id())
+                        .header("Authorization", "Bearer " + jwtToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(ApiConstants.RESPONSE_SUCCESS.get("code")))
                 .andReturn();
