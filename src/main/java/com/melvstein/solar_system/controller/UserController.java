@@ -25,7 +25,7 @@ public class UserController extends BaseController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('admin, 'user')")
+    @PreAuthorize("hasAnyAuthority('admin', 'user')")
     public ResponseEntity<ApiResponse<List<UserDto>>> getUsers() {
         try {
             List<UserDto> users = userService.getAll();
