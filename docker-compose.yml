@@ -5,29 +5,45 @@ services:
     build: .
     restart: always
     container_name: springboot-app
-    env_file:
-      - .env
     ports:
       - "8080:8080"
+    env_file:
+      - .env
     depends_on:
+      - postgresql
       - mysql
       - redis
+  postgresql:
+    image: postgres:17
+    restart: always
+    container_name: postgresql
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+    volumes:
+      - postgresql-data:/var/lib/postgresql
   mysql:
     image: mysql:8.0
     restart: always
     container_name: mysql
     ports:
       - "3306:3306"
+    env_file:
+      - .env
     volumes:
-      - mysql-data:/var/lib/mysql/data
+      - mysql-data:/var/lib/mysql
   redis:
     image: redis:7.2
     restart: always
     container_name: redis
+    env_file:
+      - .env
     ports:
       - "6379:6379"
     volumes:
-      - redis-data:/var/lib/redis/data
+      - redis-data:/var/lib/redis
 volumes:
+  postgresql-data:
   mysql-data:
   redis-data:
