@@ -23,7 +23,7 @@ import lombok.*;
 @ToString(exclude = "planet")
 public class Moon implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(updatable = false)
     private Long id;
 

@@ -15,7 +15,7 @@ import lombok.*;
 @ToString(exclude = "planet")
 public class Atmosphere implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(updatable = false)
     private Long id;
 
