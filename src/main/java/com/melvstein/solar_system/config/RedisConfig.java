@@ -1,28 +1,29 @@
-/* package com.melvstein.solar_system.config;
+ package com.melvstein.solar_system.config;
 
-import java.time.Duration;
-
+import com.melvstein.solar_system.util.Utils;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.RedisSerializationContext;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
-import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
-
-//@Configuration
+ @Slf4j
+@Configuration
+@ConditionalOnProperty(name = "redis.cache.enabled", havingValue = "true")
 @EnableCaching
 public class RedisConfig {
+    public RedisConfig() {
+        log.info("{} - Redis cache config loaded", Utils.currentMethod());
+    }
 
     @Bean
+    public RedisCacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
+        return RedisCacheManager.builder(redisConnectionFactory).build();
+    }
+
+    /*@Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
         GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer(customObjectMapper());
 
@@ -66,5 +67,5 @@ public class RedisConfig {
         ObjectMapper mapper = new ObjectMapper();
         mapper.addMixIn(PageImpl.class, PageImplMixIn.class);
         return mapper;
-    }
-} */
+    }*/
+}

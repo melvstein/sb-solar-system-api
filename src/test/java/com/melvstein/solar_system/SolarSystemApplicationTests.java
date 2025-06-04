@@ -7,7 +7,6 @@ import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
 @ActiveProfiles("test-h2")
-@EnableCaching
 class SolarSystemApplicationTests {
 
 	@Test
