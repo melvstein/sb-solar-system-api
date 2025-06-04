@@ -41,7 +41,7 @@ public class PlanetController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('admin', 'user')")
+    //@PreAuthorize("hasAnyAuthority('admin', 'user')")
     public ResponseEntity<ApiResponse<Page<PlanetDto>>> getPlanets(
             @RequestParam(required = false) Map<String, Object> params,
             @PageableDefault(size = 5) Pageable pageable
@@ -64,7 +64,7 @@ public class PlanetController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('admin', 'user')")
+    //@PreAuthorize("hasAnyAuthority('admin', 'user')")
     public ResponseEntity<ApiResponse<PlanetDto>> getPlanetById(@PathVariable Long id) {
         try {
             Optional<PlanetDto> planet = planetService.getById(id);

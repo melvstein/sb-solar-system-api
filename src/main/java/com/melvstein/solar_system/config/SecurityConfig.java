@@ -72,7 +72,7 @@ public class SecurityConfig {
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/user/**").hasAnyRole("ADMIN", "USER")
                                 .requestMatchers("/api/v1/auth/login", "/api/v1/auth/register").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/v1/planets").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/v1/planets/**").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .authenticationProvider(daoAuthenticationProvider())

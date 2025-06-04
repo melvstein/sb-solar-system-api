@@ -32,6 +32,12 @@ public class JwtFilter extends OncePerRequestFilter {
         final String token;
         final String username;
 
+        String path = request.getRequestURI();
+        if (request.getMethod().equals("GET") && path.startsWith("/api/v1/planets")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
