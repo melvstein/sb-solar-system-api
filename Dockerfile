@@ -2,7 +2,7 @@
 FROM gradle:8.4-jdk21 AS builder
 WORKDIR /app
 COPY . .
-RUN gradle bootJar
+RUN gradle clean bootJar
 
 # Stage 2: Package only the JAR
 FROM eclipse-temurin:21-jre
