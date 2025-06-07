@@ -9,6 +9,7 @@ import com.melvstein.solar_system.model.Moon;
 import com.melvstein.solar_system.model.Planet;
 import com.melvstein.solar_system.model.Ring;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -16,7 +17,9 @@ import java.util.stream.Collectors;
 import org.springframework.cache.Cache;
 import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.cache.CacheManager;
+import org.springframework.stereotype.Component;
 
+@Component
 public class Utils {
     private final CacheManager cacheManager;
 
@@ -210,6 +213,16 @@ public class Utils {
             .collect(Collectors.joining("-"));
     }
 
+    public static String generateCacheKeyFromFilter(List<String> filters) {
+        if (filters == null || filters.isEmpty()) {
+            return "noFilters";
+        }
+
+        return filters.stream()
+                .sorted()
+                .collect(Collectors.joining("-"));
+    }
+
     public boolean isCacheExists(String cacheName, Object cacheKey) {
         Cache cache = cacheManager.getCache(cacheName);
 
@@ -237,6 +250,15 @@ public class Utils {
             return cachedValue != null ? cachedValue.get() : null;
         } else {
             return null;
+        }
+    }
+
+    public static boolean hasMethod(Object object, String methodName) {
+        try {
+            Method method = object.getClass().getMethod(methodName);
+            return true;
+        } catch (NoSuchMethodException e) {
+            return false;
         }
     }
 }

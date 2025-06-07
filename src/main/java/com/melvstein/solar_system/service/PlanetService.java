@@ -12,6 +12,7 @@ import com.melvstein.solar_system.specification.PlanetSpecification;
 import com.melvstein.solar_system.util.Utils;
 
 import jakarta.annotation.Nullable;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.cache.Cache;
@@ -21,27 +22,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class PlanetService {
 
     private final PlanetRepository planetRepository;
     private final PlanetMapper planetMapper;
     private final ObjectMapper objectMapper;
     private final CacheManager cacheManager;
+    private final PlanetSpecification planetSpecification;
     private static final String CACHE_NAME = "planetsCache";
-
-    public PlanetService(PlanetRepository planetRepository, PlanetMapper planetMapper, ObjectMapper objectMapper, CacheManager cacheManager) {
-        this.planetRepository = planetRepository;
-        this.planetMapper = planetMapper;
-        this.objectMapper = objectMapper;
-        this.cacheManager = cacheManager;
-    }
 
     public List<PlanetDto> getAll(@Nullable Map<String, Object> params) {
         Specification<Planet> spec = Specification.where(null);
@@ -77,9 +70,9 @@ public class PlanetService {
     }
 
     //@Cacheable(value = CACHE_NAME, key = "'getAllWithPageable-' + T(com.melvstein.solar_system.util.Utils).generateCacheKeyFromParams(#params) + '-page:' + #pageable.pageNumber + '-size:' + #pageable.pageSize")
-    public Page<PlanetDto> getAllWithPageable(@Nullable Map<String, Object> params, Pageable pageable) {
+    public Page<PlanetDto> getAllWithPageable(@Nullable List<String> filter, Pageable pageable) {
         try {
-            String cacheKey = "getAllWithPageable-" + Utils.generateCacheKeyFromParams(params);
+            String cacheKey = "getAllWithPageable-" + Utils.generateCacheKeyFromFilter(filter);
             Cache cache = cacheManager.getCache(CACHE_NAME);
 
             log.info("{} - cacheName={} cacheKey={}", Utils.currentMethod(), CACHE_NAME, cacheKey);
@@ -96,30 +89,12 @@ public class PlanetService {
 
             Specification<Planet> spec = Specification.where(null);
 
-            if (params != null) {
-                if (params.containsKey("hasAtmosphere") && params.containsKey("hasNoAtmosphere")) {
-                    spec = spec.and(PlanetSpecification.hasAtmosphere().or(PlanetSpecification.hasNoAtmosphere()));
-                } else if (params.containsKey("hasAtmosphere") && !params.containsKey("hasNoAtmosphere")) {
-                    spec = spec.and(PlanetSpecification.hasAtmosphere());
-                } else if (!params.containsKey("hasAtmosphere") && params.containsKey("hasNoAtmosphere")) {
-                    spec = spec.and(PlanetSpecification.hasNoAtmosphere());
-                }
-
-                if (params.containsKey("hasMoon") && params.containsKey("hasNoMoon")) {
-                    spec = spec.and(PlanetSpecification.hasMoon().or(PlanetSpecification.hasNoMoon()));
-                } else if (params.containsKey("hasMoon") && !params.containsKey("hasNoMoon")) {
+            if (filter != null && !filter.isEmpty()) {
+                if (filter.contains("hasMoon")) {
                     spec = spec.and(PlanetSpecification.hasMoon());
-                } else if (!params.containsKey("hasMoon") && params.containsKey("hasNoMoon")) {
-                    spec = spec.and(PlanetSpecification.hasNoMoon());
                 }
 
-                if (params.containsKey("hasRing") && params.containsKey("hasNoRing")) {
-                    spec = spec.and(PlanetSpecification.hasRing().or(PlanetSpecification.hasNoRing()));
-                } else if (params.containsKey("hasRing") && !params.containsKey("hasNoRing")) {
-                    spec = spec.and(PlanetSpecification.hasRing());
-                } else if (!params.containsKey("hasRing") && params.containsKey("hasNoRing")) {
-                    spec = spec.and(PlanetSpecification.hasNoRing());
-                }
+                spec = spec.and(planetSpecification.getSpecificationByFilter(filter));
             }
 
             log.info("{} - Cache miss, fetching from DB... cacheName={} cacheKey={}", Utils.currentMethod(), CACHE_NAME, cacheKey);
@@ -127,13 +102,13 @@ public class PlanetService {
             Page<PlanetDto> dtoPage = planets.map(planetMapper::toDto);
 
             if (cache != null) {
-                cache.put(cacheKey, planets);
+                cache.put(cacheKey, dtoPage);
             }
 
             return dtoPage;
         } catch (Exception e) {
-            log.error("{} - Error updating planet: {}", Utils.currentMethod(), e.getMessage(), e);
-            throw new RuntimeException("Failed to update planet", e);
+            log.error("{} - Error fetching planet: {}", Utils.currentMethod(), e.getMessage(), e);
+            throw new RuntimeException("Failed to fetch planets", e);
         }
     }
 
@@ -294,9 +269,7 @@ public class PlanetService {
 
                 log.info("{} - id={}, request={}, updatedPlanet={}", Utils.currentMethod(), id, objectMapper.writeValueAsString(planet), objectMapper.writeValueAsString(updatedPlanet));
 
-                PlanetDto result = save(updatedPlanet);
-
-                return result;
+                return save(updatedPlanet);
             } else {
                 return null;
             }

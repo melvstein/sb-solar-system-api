@@ -1,13 +1,12 @@
 package com.melvstein.solar_system.specification;
 
 import com.melvstein.solar_system.model.Planet;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.*;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Component;
 
-public class PlanetSpecification {
+@Component
+public class PlanetSpecification extends BaseSpecification<Planet> {
     public static Specification<Planet> hasAtmosphere() {
         return (root, query, builder) -> {
             return builder.isNotNull(root.get("atmosphere"));

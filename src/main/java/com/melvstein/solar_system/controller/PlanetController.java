@@ -9,7 +9,6 @@ import com.melvstein.solar_system.model.Planet;
 import com.melvstein.solar_system.service.PlanetService;
 import com.melvstein.solar_system.util.ApiResponseUtils;
 import com.melvstein.solar_system.util.Utils;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -43,11 +42,11 @@ public class PlanetController {
     @GetMapping
     //@PreAuthorize("hasAnyAuthority('admin', 'user')")
     public ResponseEntity<ApiResponse<Page<PlanetDto>>> getPlanets(
-            @RequestParam(required = false) Map<String, Object> params,
-            @PageableDefault(size = 5) Pageable pageable
+            @RequestParam(required = false) List<String> filter,
+            @PageableDefault(size = 10) Pageable pageable
         ) {
         try {
-             Page<PlanetDto> planets = planetService.getAllWithPageable(params, pageable);
+             Page<PlanetDto> planets = planetService.getAllWithPageable(filter, pageable);
 
              ApiResponse<Page<PlanetDto>> response = ApiResponseUtils.success(planets);
 
