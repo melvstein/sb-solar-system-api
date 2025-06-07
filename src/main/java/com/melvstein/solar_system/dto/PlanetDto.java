@@ -2,6 +2,9 @@ package com.melvstein.solar_system.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.List;
 
 public record PlanetDto(
@@ -22,5 +25,7 @@ public record PlanetDto(
         AtmosphereDto atmosphere,
         List<MoonDto> moons,
         RingDto ring
-) {
+)  implements Serializable {
+        @Serial
+        private static final long serialVersionUID = 1L;
 }
