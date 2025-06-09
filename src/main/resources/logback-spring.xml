@@ -108,11 +108,11 @@
 
     <!-- Root logger sends logs to all level-specific appenders -->
     <root level="INFO">
-        <appender-ref ref="TRACE_FILE" />
-        <appender-ref ref="DEBUG_FILE" />
-        <appender-ref ref="INFO_FILE" />
-        <appender-ref ref="WARN_FILE" />
-        <appender-ref ref="ERROR_FILE" />
+<!--        <appender-ref ref="TRACE_FILE" />-->
+<!--        <appender-ref ref="DEBUG_FILE" />-->
+<!--        <appender-ref ref="INFO_FILE" />-->
+<!--        <appender-ref ref="WARN_FILE" />-->
+<!--        <appender-ref ref="ERROR_FILE" />-->
         <appender-ref ref="CONSOLE" />
     </root>
 
