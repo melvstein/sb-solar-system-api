@@ -1,42 +1,42 @@
 # version: '3.8'
 
 services:
-  app:
+  sb-solar-system-api-app:
     build: .
     restart: always
-    container_name: springboot-app
+    container_name: sb-solar-system-api-app
     ports:
       - "8080:8080"
     env_file:
       - .env
     depends_on:
-      - postgresql
-      - mysql
-      - redis
-  postgresql:
+      - sb-solar-system-api-postgresql
+      - sb-solar-system-api-mysql
+      - sb-solar-system-api-redis
+  sb-solar-system-api-postgresql:
     image: postgres:17
     restart: always
-    container_name: postgresql
+    container_name: sb-solar-system-api-postgresql
     ports:
       - "5432:5432"
     env_file:
       - .env
     volumes:
       - postgresql-data:/var/lib/postgresql/data
-  mysql:
+  sb-solar-system-api-mysql:
     image: mysql:8.0
     restart: always
-    container_name: mysql
+    container_name: sb-solar-system-api-mysql
     ports:
       - "3306:3306"
     env_file:
       - .env
     volumes:
       - mysql-data:/var/lib/mysql
-  redis:
+  sb-solar-system-api-redis:
     image: redis:7.2
     restart: always
-    container_name: redis
+    container_name: sb-solar-system-api-redis
     env_file:
       - .env
     ports:
