@@ -1,12 +1,24 @@
-# Stage 1: Build the app
-FROM gradle:8.4-jdk21 AS builder
-WORKDIR /app
-COPY . .
-RUN gradle clean bootJar
+#builder
+FROM gradle:8.14-jdk21-alpine AS builder
+LABEL author="Melvstein"
 
-# Stage 2: Package only the JAR
+WORKDIR /app
+
+COPY build.gradle settings.gradle ./
+COPY gradle ./gradle
+
+RUN gradle build --no-daemon -x test || true
+
+COPY . .
+
+RUN gradle clean bootJar --no-daemon
+
+#runtime
 FROM eclipse-temurin:21-jre
 WORKDIR /app
+
 COPY --from=builder /app/build/libs/*.jar app.jar
+
 EXPOSE 8080
+
 ENTRYPOINT ["java", "-jar", "app.jar"]
