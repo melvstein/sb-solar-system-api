@@ -1,0 +1,409 @@
+{
+	"info": {
+		"_postman_id": "84aa6411-50c3-4b6b-b10e-2b5538037f86",
+		"name": "Solar System API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "15493057"
+	},
+	"item": [
+		{
+			"name": "Planets",
+			"item": [
+				{
+					"name": "getAllPlanets",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "{{apiUrl}}/api/v1/planets",
+							"host": [
+								"{{apiUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"planets"
+							],
+							"query": [
+								{
+									"key": "hasAtmosphere",
+									"value": "true",
+									"disabled": true
+								},
+								{
+									"key": "hasNoAtmosphere",
+									"value": "true",
+									"disabled": true
+								},
+								{
+									"key": "hasMoon",
+									"value": "true",
+									"disabled": true
+								},
+								{
+									"key": "hasNoMoon",
+									"value": "true",
+									"disabled": true
+								},
+								{
+									"key": "hasRing",
+									"value": "true",
+									"disabled": true
+								},
+								{
+									"key": "hasNoRing",
+									"value": "true",
+									"disabled": true
+								},
+								{
+									"key": "size",
+									"value": "10",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getById",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{apiUrl}}/api/v1/planets/1",
+							"host": [
+								"{{apiUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"planets",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "save",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Neptune123\",\r\n    \"radius\": 1.4,\r\n    \"distance\": 95,\r\n    \"speed\": 0.002\r\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{apiUrl}}/api/v1/planets",
+							"host": [
+								"{{apiUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"planets"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "saveAll",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n  {\r\n    \"name\": \"Mercury\",\r\n    \"radius\": 0.5,\r\n    \"distance\": 10,\r\n    \"speed\": 0.017,\r\n    \"atmosphere\": null,\r\n    \"ring\": null,\r\n    \"moons\": []\r\n  },\r\n  {\r\n    \"name\": \"Venus\",\r\n    \"radius\": 0.9,\r\n    \"distance\": 18,\r\n    \"speed\": 0.012,\r\n    \"atmosphere\": {\r\n      \"radius\": 1.05,\r\n      \"color\": \"#f5deb3\",\r\n      \"opacity\": 0.3,\r\n      \"emissive\": \"orange\",\r\n      \"emissiveIntensity\": 0.8\r\n    },\r\n    \"ring\": null,\r\n    \"moons\": []\r\n  },\r\n  {\r\n    \"name\": \"Earth\",\r\n    \"radius\": 1,\r\n    \"distance\": 26,\r\n    \"speed\": 0.01,\r\n    \"atmosphere\": {\r\n      \"radius\": 1.2,\r\n      \"color\": \"#00bcd4\",\r\n      \"opacity\": 0.2,\r\n      \"emissive\": \"blue\",\r\n      \"emissiveIntensity\": 1\r\n    },\r\n    \"ring\": null,\r\n    \"moons\": [\r\n      {\r\n        \"name\": \"Moon\",\r\n        \"radius\": 0.27,\r\n        \"distance\": 3,\r\n        \"speed\": 0.03\r\n      }\r\n    ]\r\n  },\r\n  {\r\n    \"name\": \"Mars\",\r\n    \"radius\": 0.8,\r\n    \"distance\": 34,\r\n    \"speed\": 0.008,\r\n    \"atmosphere\": {\r\n      \"radius\": 0.95,\r\n      \"color\": \"#ff6f00\",\r\n      \"opacity\": 0.15,\r\n      \"emissive\": \"darkred\",\r\n      \"emissiveIntensity\": 0.6\r\n    },\r\n    \"ring\": null,\r\n    \"moons\": [\r\n      {\r\n        \"name\": \"Phobos\",\r\n        \"radius\": 0.1,\r\n        \"distance\": 2,\r\n        \"speed\": 0.04\r\n      },\r\n      {\r\n        \"name\": \"Deimos\",\r\n        \"radius\": 0.08,\r\n        \"distance\": 3,\r\n        \"speed\": 0.02\r\n      }\r\n    ]\r\n  },\r\n  {\r\n    \"name\": \"Jupiter\",\r\n    \"radius\": 2.5,\r\n    \"distance\": 50,\r\n    \"speed\": 0.006,\r\n    \"atmosphere\": {\r\n      \"radius\": 2.8,\r\n      \"color\": \"#d2b48c\",\r\n      \"opacity\": 0.25,\r\n      \"emissive\": \"#ffcc80\",\r\n      \"emissiveIntensity\": 0.5\r\n    },\r\n    \"ring\": {\r\n      \"color\": \"#aaaaaa\",\r\n      \"innerRadius\": 2.7,\r\n      \"outerRadius\": 3.2,\r\n      \"tilt\": 1.5167963267948965,\r\n      \"opacity\": 0.2\r\n    },\r\n    \"moons\": [\r\n      {\r\n        \"name\": \"Io\",\r\n        \"radius\": 0.2,\r\n        \"distance\": 2.5,\r\n        \"speed\": 0.04\r\n      },\r\n      {\r\n        \"name\": \"Europa\",\r\n        \"radius\": 0.18,\r\n        \"distance\": 3,\r\n        \"speed\": 0.035\r\n      },\r\n      {\r\n        \"name\": \"Ganymede\",\r\n        \"radius\": 0.3,\r\n        \"distance\": 3.5,\r\n        \"speed\": 0.03\r\n      },\r\n      {\r\n        \"name\": \"Callisto\",\r\n        \"radius\": 0.25,\r\n        \"distance\": 4,\r\n        \"speed\": 0.025\r\n      }\r\n    ]\r\n  },\r\n  {\r\n    \"name\": \"Saturn\",\r\n    \"radius\": 2,\r\n    \"distance\": 65,\r\n    \"speed\": 0.005,\r\n    \"atmosphere\": {\r\n      \"radius\": 2.3,\r\n      \"color\": \"#ffe0b2\",\r\n      \"opacity\": 0.25,\r\n      \"emissive\": \"#ffd180\",\r\n      \"emissiveIntensity\": 0.5\r\n    },\r\n    \"ring\": {\r\n      \"color\": \"#b1976b\",\r\n      \"innerRadius\": 2.2,\r\n      \"outerRadius\": 3.5,\r\n      \"tilt\": 1.1047963267948965,\r\n      \"opacity\": 0.6\r\n    },\r\n    \"moons\": [\r\n      {\r\n        \"name\": \"Titan\",\r\n        \"radius\": 0.25,\r\n        \"distance\": 3.5,\r\n        \"speed\": 0.025\r\n      },\r\n      {\r\n        \"name\": \"Enceladus\",\r\n        \"radius\": 0.1,\r\n        \"distance\": 2.8,\r\n        \"speed\": 0.03\r\n      }\r\n    ]\r\n  },\r\n  {\r\n    \"name\": \"Uranus\",\r\n    \"radius\": 1.5,\r\n    \"distance\": 80,\r\n    \"speed\": 0.003,\r\n    \"atmosphere\": {\r\n      \"radius\": 1.7,\r\n      \"color\": \"#b2ebf2\",\r\n      \"opacity\": 0.2,\r\n      \"emissive\": \"#81d4fa\",\r\n      \"emissiveIntensity\": 0.5\r\n    },\r\n    \"ring\": {\r\n      \"color\": \"#b5e0ff\",\r\n      \"innerRadius\": 1.6,\r\n      \"outerRadius\": 1.8,\r\n      \"tilt\": -1.5707963267948966,\r\n      \"opacity\": 0.15\r\n    },\r\n    \"moons\": [\r\n      {\r\n        \"name\": \"Miranda\",\r\n        \"radius\": 0.1,\r\n        \"distance\": 2.5,\r\n        \"speed\": 0.035\r\n      },\r\n      {\r\n        \"name\": \"Ariel\",\r\n        \"radius\": 0.12,\r\n        \"distance\": 3,\r\n        \"speed\": 0.03\r\n      }\r\n    ]\r\n  },\r\n  {\r\n    \"name\": \"Neptune\",\r\n    \"radius\": 1.4,\r\n    \"distance\": 95,\r\n    \"speed\": 0.002,\r\n    \"atmosphere\": {\r\n      \"radius\": 1.6,\r\n      \"color\": \"#a0c4ff\",\r\n      \"opacity\": 0.25,\r\n      \"emissive\": \"#90caf9\",\r\n      \"emissiveIntensity\": 0.5\r\n    },\r\n    \"ring\": {\r\n      \"color\": \"#8888ff\",\r\n      \"innerRadius\": 1.5,\r\n      \"outerRadius\": 1.7,\r\n      \"tilt\": 1.0767963267948966,\r\n      \"opacity\": 0.1\r\n    },\r\n    \"moons\": [\r\n      {\r\n        \"name\": \"Triton\",\r\n        \"radius\": 0.2,\r\n        \"distance\": 3.5,\r\n        \"speed\": 0.03\r\n      }\r\n    ]\r\n  }\r\n]\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{apiUrl}}/api/v1/planets/bulk",
+							"host": [
+								"{{apiUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"planets",
+								"bulk"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateById",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"radius\": 0.5\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{apiUrl}}/api/v1/planets/1",
+							"host": [
+								"{{apiUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"planets",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteById",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Mercury\",\r\n    \"speed\": 0.018\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{apiUrl}}/api/v1/planets/11",
+							"host": [
+								"{{apiUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"planets",
+								"11"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "getUsers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{apiUrl}}/api/v1/users",
+							"host": [
+								"{{apiUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteUSerById",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{apiUrl}}/api/v1/users/1",
+							"host": [
+								"{{apiUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "register",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"role\": \"admin\",\r\n    \"username\": \"melvstein\",\r\n    \"password\": \"a123456\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{apiUrl}}/api/v1/auth/register",
+							"host": [
+								"{{apiUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseBody = pm.response.json();\r",
+									"const jwtToken = responseBody.data.jwtToken;\r",
+									"\r",
+									"pm.collectionVariables.set(\"jwtToken\", jwtToken);\r",
+									"\r",
+									"console.log(\"Saved JWT token: \", jwtToken)"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"melvstein\",\r\n    \"password\": \"a123456\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{apiUrl}}/api/v1/auth/login",
+							"host": [
+								"{{apiUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{jwtToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "apiUrl",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "jwtToken",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
